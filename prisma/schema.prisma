@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  ACTIVE
+  CLOSED
+}
+
+model Job {
+  id              String    @id @default(uuid())
+  companyName     String    @map("company_name")
+  contactPerson   String?   @map("contact_person")
+  jobTitle        String    @map("job_title")
+  skills          String?   @db.Text
+  experience      String?
+  location        String?
+  salaryBudget    String?   @map("salary_budget")
+  jobDescription  String    @map("job_description") @db.Text
+  postedDate      DateTime  @map("posted_date") @db.Date
+  status          JobStatus @default(ACTIVE)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([companyName])
+  @@index([jobTitle])
+  @@index([location])
+  @@index([status])
+  @@index([postedDate])
+  @@index([status, postedDate])
+  @@map("jobs")
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admins")
+}
