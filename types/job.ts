@@ -9,7 +9,7 @@ export interface Job {
   experience: string | null;
   location: string | null;
   salaryBudget: string | null;
-  jobDescription: string;
+  jobDescription?: string;
   postedDate: string | Date;
   status: JobStatus;
   createdAt: string | Date;
@@ -25,6 +25,8 @@ export interface JobFilterParams {
   location?: string;
   status?: JobStatus | 'ALL';
   postedDate?: 'today' | '7days' | '30days' | 'all';
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
 }
@@ -41,12 +43,33 @@ export interface PaginatedJobsResponse {
   matchedRule?: string | null;
 }
 
+export interface CompanyJobSummary {
+  id: string;
+  jobTitle: string;
+  status: JobStatus;
+  location?: string | null;
+  postedDate: string | Date;
+  experience?: string | null;
+  salaryBudget?: string | null;
+}
+
 export interface CompanyWithCount {
   companyName: string;
   activeJobCount: number;
   contactPerson?: string | null;
   latestPostedDate?: string | Date;
   totalCount?: number;
+  jobs?: CompanyJobSummary[];
+}
+
+export interface CompanyAdminStats {
+  companyName: string;
+  contactPerson: string | null;
+  totalCount: number;
+  activeCount: number;
+  closedCount: number;
+  latestPostedDate: string | Date;
+  jobs: CompanyJobSummary[];
 }
 
 export interface AdminStats {

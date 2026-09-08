@@ -8,6 +8,12 @@ import { LayoutDashboard, Briefcase, Building2, PlusCircle, LogOut, Globe, Menu,
 export default function AdminNavbar() {
   const pathname = usePathname();
   const router = useRouter();
+
+  // Do not render AdminNavbar on login page
+  if (pathname === '/admin/login') {
+    return null;
+  }
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 

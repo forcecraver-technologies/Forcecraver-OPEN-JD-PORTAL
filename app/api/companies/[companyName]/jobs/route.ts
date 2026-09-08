@@ -13,11 +13,16 @@ export async function GET(
       return NextResponse.json({ error: 'Company name is required.' }, { status: 400 });
     }
 
-    const jobs = await JobsService.getJobsByCompany(decodedName, false);
+    const searchParams = request.nextUrl.searchParams;
+    const includeClosed = searchParams.get('includeClosed') === 'true';
+
+    const jobs = await JobsService.getJobsByCompany(decodedName, includeClosed);
 
     return NextResponse.json({
       companyName: decodedName,
-      activeJobCount: jobs.length,
+      activeJobCount: jobs.filter((j) => j.status === 'ACTIVE').length,
+      closedJobCount: jobs.filter((j) => j.status === 'CLOSED').length,
+      totalCount: jobs.length,
       jobs,
     });
   } catch (error) {

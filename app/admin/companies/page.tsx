@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import DeleteCompanyModal from '@/components/admin/DeleteCompanyModal';
+import { CompanyAdminStats } from '@/types/job';
 import {
   Building2,
   PlusCircle,
@@ -18,17 +20,11 @@ import {
   Edit2,
   Check,
   X,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { format } from 'date-fns';
-
-interface CompanyAdminStats {
-  companyName: string;
-  contactPerson: string | null;
-  totalCount: number;
-  activeCount: number;
-  closedCount: number;
-  latestPostedDate: string;
-}
 
 export default function AdminCompaniesPage() {
   const [companies, setCompanies] = useState<CompanyAdminStats[]>([]);
@@ -39,6 +35,22 @@ export default function AdminCompaniesPage() {
   const [editingCompany, setEditingCompany] = useState<string | null>(null);
   const [editingHandlerName, setEditingHandlerName] = useState('');
   const [savingHandler, setSavingHandler] = useState(false);
+
+  // Delete Company modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState<CompanyAdminStats | null>(null);
+  const [isDeletingCompany, setIsDeletingCompany] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  // Expand / collapse JD list state per company
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+
+  const toggleExpandCard = (companyName: string) => {
+    setExpandedCards((prev) => ({
+      ...prev,
+      [companyName]: !prev[companyName],
+    }));
+  };
 
   const fetchCompanies = async () => {
     try {
@@ -93,6 +105,42 @@ export default function AdminCompaniesPage() {
     }
   };
 
+  const handleOpenDeleteModal = (company: CompanyAdminStats) => {
+    setCompanyToDelete(company);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteCompany = async () => {
+    if (!companyToDelete) return;
+    try {
+      setIsDeletingCompany(true);
+      const res = await fetch(
+        `/api/admin/companies?companyName=${encodeURIComponent(companyToDelete.companyName)}`,
+        { method: 'DELETE' }
+      );
+
+      if (res.ok) {
+        setCompanies((prev) =>
+          prev.filter((c) => c.companyName !== companyToDelete.companyName)
+        );
+        setNotification(
+          `Successfully deleted company "${companyToDelete.companyName}" and all associated jobs.`
+        );
+        setTimeout(() => setNotification(null), 4000);
+        setDeleteModalOpen(false);
+        setCompanyToDelete(null);
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.error || 'Failed to delete company.');
+      }
+    } catch (err) {
+      console.error('Failed to delete company:', err);
+      alert('An error occurred while deleting the company.');
+    } finally {
+      setIsDeletingCompany(false);
+    }
+  };
+
   const filteredCompanies = companies.filter((c) =>
     c.companyName.toLowerCase().includes(searchQuery.toLowerCase().trim())
   );
@@ -103,6 +151,23 @@ export default function AdminCompaniesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Success Notification */}
+      {notification && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span>{notification}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotification(null)}
+            className="p-1 text-emerald-600 hover:text-emerald-800 rounded-lg hover:bg-emerald-100"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -199,6 +264,8 @@ export default function AdminCompaniesPage() {
               : '—';
 
             const isEditingThis = editingCompany === company.companyName;
+            const isExpanded = Boolean(expandedCards[company.companyName]);
+            const jobsList = company.jobs || [];
 
             return (
               <div
@@ -222,14 +289,26 @@ export default function AdminCompaniesPage() {
                       </div>
                     </div>
 
-                    <Link
-                      href={`/companies/${encodeURIComponent(company.companyName)}`}
-                      target="_blank"
-                      title="View Public Profile"
-                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </Link>
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/companies/${encodeURIComponent(company.companyName)}`}
+                        target="_blank"
+                        title="View Public Profile"
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Link>
+
+                      {/* Top quick delete button */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDeleteModal(company)}
+                        title={`Delete ${company.companyName}`}
+                        className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Handled By / Contact Person Section */}
@@ -302,7 +381,7 @@ export default function AdminCompaniesPage() {
                     {company.closedCount > 0 && (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
                         <XCircle className="w-3 h-3 text-slate-400" />
-                        {company.closedCount} Closed
+                        {company.closedCount} Inactive
                       </span>
                     )}
 
@@ -310,27 +389,128 @@ export default function AdminCompaniesPage() {
                       Total: {company.totalCount} JDs
                     </span>
                   </div>
+
+                  {/* ACTIVE & INACTIVE JD POSTS LIST IN CARD */}
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                        JD Postings ({jobsList.length})
+                      </span>
+                      {jobsList.length > 3 && (
+                        <button
+                          type="button"
+                          onClick={() => toggleExpandCard(company.companyName)}
+                          className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-0.5"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <span>Show less</span>
+                              <ChevronUp className="w-3 h-3" />
+                            </>
+                          ) : (
+                            <>
+                              <span>Show all ({jobsList.length})</span>
+                              <ChevronDown className="w-3 h-3" />
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 max-h-52 overflow-y-auto pr-0.5">
+                      {jobsList.length > 0 ? (
+                        (isExpanded ? jobsList : jobsList.slice(0, 3)).map((job) => {
+                          const isActive = job.status === 'ACTIVE';
+                          return (
+                            <div
+                              key={job.id}
+                              className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/70 border border-slate-100 transition-colors flex items-center justify-between gap-2"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span
+                                    className={`w-2 h-2 rounded-full shrink-0 ${
+                                      isActive ? 'bg-emerald-500' : 'bg-slate-400'
+                                    }`}
+                                  />
+                                  <span className="font-semibold text-xs text-slate-900 truncate block">
+                                    {job.jobTitle}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5 ml-3.5">
+                                  <span>{job.location || 'Remote'}</span>
+                                  {job.postedDate && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{format(new Date(job.postedDate), 'MMM d, yyyy')}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1 shrink-0">
+                                <span
+                                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                    isActive
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      : 'bg-slate-200 text-slate-600 border border-slate-300'
+                                  }`}
+                                >
+                                  {isActive ? 'Active' : 'Inactive'}
+                                </span>
+                                <Link
+                                  href={`/admin/jobs/${job.id}/edit`}
+                                  title="Edit JD"
+                                  className="p-1 text-slate-400 hover:text-blue-600 rounded hover:bg-white transition-colors"
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                </Link>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center py-3 text-xs text-slate-400 italic">
+                          No JD posts found.
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-slate-100">
-                  {/* Direct Add JD Button with pre-filled Company Name & Handler */}
+                {/* Action Buttons: Add JD, Manage JDs, and Delete Company */}
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100">
+                  {/* Direct Add JD */}
                   <Link
                     href={`/admin/jobs/new?company=${encodeURIComponent(company.companyName)}`}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-bold text-xs rounded-xl transition-all border border-blue-200 hover:border-blue-600 shadow-2xs"
+                    className="inline-flex items-center justify-center gap-1 px-2 py-2 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-bold text-xs rounded-xl transition-all border border-blue-200 hover:border-blue-600 shadow-2xs"
+                    title="Add New JD for this organization"
                   >
-                    <PlusCircle className="w-3.5 h-3.5" />
-                    <span>+ Add JD</span>
+                    <PlusCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">+ Add JD</span>
                   </Link>
 
-                  {/* Manage JDs for this company */}
+                  {/* Manage JDs */}
                   <Link
                     href={`/admin/companies/${encodeURIComponent(company.companyName)}`}
-                    className="inline-flex items-center justify-center gap-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl transition-all"
+                    className="inline-flex items-center justify-center gap-1 px-2 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl transition-all"
+                    title="Manage all JDs for this company"
                   >
-                    <span>Manage JDs</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <span className="truncate">Manage ({company.totalCount})</span>
+                    <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                   </Link>
+
+                  {/* Delete Company Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenDeleteModal(company)}
+                    className="inline-flex items-center justify-center gap-1 px-2 py-2 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white font-bold text-xs rounded-xl transition-all border border-rose-200 hover:border-rose-600 shadow-2xs"
+                    title="Delete Company and all its JDs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">Delete</span>
+                  </button>
                 </div>
               </div>
             );
@@ -345,6 +525,19 @@ export default function AdminCompaniesPage() {
           </p>
         </div>
       )}
+
+      {/* Delete Company Confirmation Modal */}
+      <DeleteCompanyModal
+        isOpen={deleteModalOpen}
+        companyName={companyToDelete?.companyName || ''}
+        totalJobsCount={companyToDelete?.totalCount || 0}
+        isDeleting={isDeletingCompany}
+        onConfirm={handleConfirmDeleteCompany}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setCompanyToDelete(null);
+        }}
+      />
     </div>
   );
 }

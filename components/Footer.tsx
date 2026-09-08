@@ -1,8 +1,18 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Briefcase, ShieldCheck, Database, Search } from 'lucide-react';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide footer on all admin pages
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer className="bg-white border-t border-slate-200 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -43,18 +53,18 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/dashboard" className="hover:text-blue-600 transition-colors">
+                  JD Dashboard
+                </Link>
+              </li>
+              <li>
                 <Link href="/companies" className="hover:text-blue-600 transition-colors">
                   Browse Companies
                 </Link>
               </li>
               <li>
-                <Link href="/?search=Today+JDs" className="hover:text-blue-600 transition-colors">
+                <Link href="/?postedDate=today" className="hover:text-blue-600 transition-colors">
                   Today's JDs
-                </Link>
-              </li>
-              <li>
-                <Link href="/?search=Jobs+in+Ahmedabad" className="hover:text-blue-600 transition-colors">
-                  Jobs in Ahmedabad
                 </Link>
               </li>
             </ul>
@@ -62,26 +72,16 @@ export default function Footer() {
 
           {/* Column 3: Administration */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Portal Access</h4>
+            <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Administration</h4>
             <ul className="space-y-2 text-sm text-slate-600">
-              <li>
-                <Link href="/admin" className="hover:text-blue-600 transition-colors">
-                  Admin Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin/jobs" className="hover:text-blue-600 transition-colors">
-                  Manage Job Descriptions
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin/jobs/new" className="hover:text-blue-600 transition-colors">
-                  Create New JD
-                </Link>
-              </li>
               <li>
                 <Link href="/admin/login" className="hover:text-blue-600 transition-colors">
                   Admin Login
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="hover:text-blue-600 transition-colors">
+                  Management Console
                 </Link>
               </li>
             </ul>

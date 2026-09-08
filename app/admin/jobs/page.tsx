@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
+import ExportModal from '@/components/admin/ExportModal';
 import Pagination from '@/components/Pagination';
 import { Job } from '@/types/job';
 import {
@@ -23,6 +24,8 @@ import {
   Square,
   AlertTriangle,
   Layers,
+  FileSpreadsheet,
+  Filter,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -37,10 +40,30 @@ function ManageJobsContent() {
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get('search') || '');
+  const [companyFilter, setCompanyFilter] = useState(searchParams.get('company') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [dateFilter, setDateFilter] = useState(searchParams.get('postedDate') || 'all');
+  const [startDate, setStartDate] = useState(searchParams.get('startDate') || '');
+  const [endDate, setEndDate] = useState(searchParams.get('endDate') || '');
   const [currentPage, setCurrentPage] = useState(
     searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1
   );
+
+  // Debounce search query (350ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Available companies for filter dropdown
+  const [availableCompanies, setAvailableCompanies] = useState<string[]>([]);
+
+  // Export Modal state
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   // Multiple selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -55,12 +78,37 @@ function ManageJobsContent() {
   // Status updating state
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
+  // Load companies for the dropdown
+  useEffect(() => {
+    async function loadCompanies() {
+      try {
+        const res = await fetch('/api/admin/companies');
+        if (res.ok) {
+          const data = await res.json();
+          const names = (data.companies || []).map((c: any) => c.companyName);
+          setAvailableCompanies(names);
+        }
+      } catch (err) {
+        console.error('Failed to load companies for filter:', err);
+      }
+    }
+    loadCompanies();
+  }, []);
+
   const fetchAdminJobs = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (searchQuery) params.set('search', searchQuery);
+      if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
+      if (companyFilter) params.set('company', companyFilter);
       if (statusFilter && statusFilter !== 'ALL') params.set('status', statusFilter);
+      if (dateFilter && dateFilter !== 'all' && dateFilter !== 'custom') {
+        params.set('postedDate', dateFilter);
+      }
+      if (dateFilter === 'custom') {
+        if (startDate) params.set('startDate', startDate);
+        if (endDate) params.set('endDate', endDate);
+      }
       params.set('page', currentPage.toString());
       params.set('limit', '12');
 
@@ -76,7 +124,7 @@ function ManageJobsContent() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, statusFilter, currentPage]);
+  }, [debouncedSearch, companyFilter, statusFilter, dateFilter, startDate, endDate, currentPage]);
 
   useEffect(() => {
     fetchAdminJobs();
@@ -85,12 +133,12 @@ function ManageJobsContent() {
   // Clean selections if page or filters change
   useEffect(() => {
     setSelectedIds([]);
-  }, [currentPage, statusFilter, searchQuery]);
+  }, [currentPage, statusFilter, companyFilter, dateFilter, startDate, endDate, debouncedSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchAdminJobs();
+    setDebouncedSearch(searchQuery);
   };
 
   const handleToggleStatus = async (job: Job) => {
@@ -221,66 +269,169 @@ function ManageJobsContent() {
           </p>
         </div>
 
-        <Link
-          href="/admin/jobs/new"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-sm hover:shadow transition-all self-start sm:self-auto"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Add New JD
-        </Link>
+        <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+          {/* Download XLS Button */}
+          <button
+            type="button"
+            onClick={() => setExportModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-sm hover:shadow transition-all"
+            title="Export job descriptions to Excel (.xlsx)"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Download XLS</span>
+          </button>
+
+          <Link
+            href="/admin/jobs/new"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-sm hover:shadow transition-all"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Add New JD
+          </Link>
+        </div>
       </div>
 
       {/* Search & Filter Controls */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        {/* Search Input */}
-        <form onSubmit={handleSearchSubmit} className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by company, title, skills, or location..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
-          />
-        </form>
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3.5">
+        {/* Row 1: Search, Company select, Status select, Date select, Reset */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+          {/* Search Input */}
+          <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[220px]">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by title, skills, or location..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+            />
+          </form>
 
-        {/* Filter Controls */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl p-1 text-xs font-semibold">
-            {['ALL', 'ACTIVE', 'CLOSED'].map((status) => (
-              <button
-                key={status}
-                type="button"
-                onClick={() => {
-                  setStatusFilter(status);
+          {/* Company Filter Dropdown */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <div className="relative min-w-[170px] flex-1 sm:flex-initial">
+              <select
+                value={companyFilter}
+                onChange={(e) => {
+                  setCompanyFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  statusFilter === status
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
+                className="w-full text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none pr-8 cursor-pointer"
               >
-                {status}
-              </button>
-            ))}
-          </div>
+                <option value="">All Companies</option>
+                {availableCompanies.map((comp) => (
+                  <option key={comp} value={comp}>
+                    {comp}
+                  </option>
+                ))}
+              </select>
+              <Building2 className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+            </div>
 
-          {(searchQuery || statusFilter !== 'ALL') && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('ALL');
-                setCurrentPage(1);
-              }}
-              title="Reset Filters"
-              className="p-2.5 rounded-xl border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-slate-50"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          )}
+            {/* Status Filter Dropdown */}
+            <div className="relative min-w-[130px] flex-1 sm:flex-initial">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none pr-8 cursor-pointer"
+              >
+                <option value="ALL">All Status</option>
+                <option value="ACTIVE">Active (Open)</option>
+                <option value="CLOSED">Inactive (Closed)</option>
+              </select>
+              <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+            </div>
+
+            {/* Date Filter Dropdown */}
+            <div className="relative min-w-[145px] flex-1 sm:flex-initial">
+              <select
+                value={dateFilter}
+                onChange={(e) => {
+                  setDateFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none pr-8 cursor-pointer"
+              >
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="custom">Custom Date...</option>
+              </select>
+              <Calendar className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+            </div>
+
+            {/* Reset Filters Button */}
+            {(searchQuery || companyFilter || statusFilter !== 'ALL' || dateFilter !== 'all' || startDate || endDate) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setCompanyFilter('');
+                  setStatusFilter('ALL');
+                  setDateFilter('all');
+                  setStartDate('');
+                  setEndDate('');
+                  setCurrentPage(1);
+                }}
+                title="Reset All Filters"
+                className="p-2.5 rounded-xl border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-slate-50 shrink-0"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Row 2: Custom Date Range Pickers (if dateFilter === 'custom') */}
+        {dateFilter === 'custom' && (
+          <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs animate-in fade-in duration-150">
+            <span className="font-semibold text-slate-600 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-blue-600" />
+              Custom Date Range:
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500">From:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500">To:</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+            {(startDate || endDate) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStartDate('');
+                  setEndDate('');
+                  setCurrentPage(1);
+                }}
+                className="text-xs text-rose-600 hover:underline font-semibold"
+              >
+                Clear Dates
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* BULK ACTIONS TOOLBAR (Appears when 1 or more JDs are selected) */}
@@ -545,6 +696,24 @@ function ManageJobsContent() {
           setDeleteModalOpen(false);
           setJobToDelete(null);
           setIsBulkDelete(false);
+        }}
+      />
+
+      {/* Export to Excel Modal */}
+      <ExportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        totalJobs={totalJobs}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        itemsPerPage={12}
+        filters={{
+          search: searchQuery,
+          company: companyFilter,
+          status: statusFilter,
+          postedDate: dateFilter,
+          startDate,
+          endDate,
         }}
       />
     </div>

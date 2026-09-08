@@ -3,21 +3,21 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Briefcase, Building2, ShieldCheck, Menu, X, Sparkles } from 'lucide-react';
+import { Briefcase, Building2, ShieldCheck, Menu, X, Sparkles, LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // If in admin area (except login), we render AdminNavbar inside admin layout
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+  // If in admin area, we hide public Navbar completely
+  if (pathname.startsWith('/admin')) {
     return null;
   }
 
   const navLinks = [
     { name: 'Browse Jobs', href: '/', icon: Briefcase },
+    { name: 'JD Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Companies', href: '/companies', icon: Building2 },
-    { name: 'Admin Portal', href: '/admin', icon: ShieldCheck },
   ];
 
   return (
@@ -65,14 +65,14 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Desktop Right CTA */}
+          {/* Desktop Right CTA: Admin Portal */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              href="/admin/jobs/new"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all"
+              href="/admin"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50 border border-slate-200/80 hover:border-blue-200 rounded-xl transition-all"
             >
-              <Briefcase className="w-4 h-4" />
-              Post a JD
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+              <span>Admin Portal</span>
             </Link>
           </div>
 
@@ -118,12 +118,12 @@ export default function Navbar() {
           })}
           <div className="pt-2 border-t border-slate-100">
             <Link
-              href="/admin/jobs/new"
+              href="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-slate-200 transition-colors"
             >
-              <Briefcase className="w-5 h-5" />
-              Post a JD
+              <ShieldCheck className="w-4 h-4 text-slate-500" />
+              Admin Portal
             </Link>
           </div>
         </div>

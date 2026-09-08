@@ -274,7 +274,18 @@ export function buildJobWhereClause(filters: JobFilterParams): {
   }
 
   // Posted Date Filter
-  if (filters.postedDate && filters.postedDate !== 'all') {
+  if (filters.startDate || filters.endDate) {
+    const dateCondition: Prisma.DateTimeFilter = {};
+    if (filters.startDate) {
+      dateCondition.gte = startOfDay(new Date(filters.startDate));
+    }
+    if (filters.endDate) {
+      dateCondition.lte = endOfDay(new Date(filters.endDate));
+    }
+    andConditions.push({
+      postedDate: dateCondition,
+    });
+  } else if (filters.postedDate && filters.postedDate !== 'all') {
     const now = new Date();
     if (filters.postedDate === 'today') {
       andConditions.push({

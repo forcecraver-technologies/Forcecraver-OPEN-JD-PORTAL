@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
       location: searchParams.get('location') || undefined,
       status: (searchParams.get('status') as any) || 'ALL', // Admin views ALL by default
       postedDate: (searchParams.get('postedDate') as any) || 'all',
+      startDate: searchParams.get('startDate') || undefined,
+      endDate: searchParams.get('endDate') || undefined,
       page: searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1,
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 15,
     };

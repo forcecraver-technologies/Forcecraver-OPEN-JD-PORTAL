@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
+import DeleteCompanyModal from '@/components/admin/DeleteCompanyModal';
 import { Job } from '@/types/job';
 import {
   Building2,
@@ -40,15 +41,19 @@ export default function AdminCompanyDetailPage() {
   const [handlerInput, setHandlerInput] = useState('');
   const [savingHandler, setSavingHandler] = useState(false);
 
-  // Delete modal state
+  // Delete JD modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Delete Company modal state
+  const [deleteCompanyModalOpen, setDeleteCompanyModalOpen] = useState(false);
+  const [isDeletingCompany, setIsDeletingCompany] = useState(false);
+
   const fetchCompanyJobs = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/companies/${encodeURIComponent(companyName)}/jobs`);
+      const res = await fetch(`/api/companies/${encodeURIComponent(companyName)}/jobs?includeClosed=true`);
       if (res.ok) {
         const data = await res.json();
         const loadedJobs: Job[] = data.jobs || [];
@@ -136,6 +141,28 @@ export default function AdminCompanyDetailPage() {
       console.error('Delete failed:', err);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleConfirmDeleteCompany = async () => {
+    try {
+      setIsDeletingCompany(true);
+      const res = await fetch(`/api/admin/companies?companyName=${encodeURIComponent(companyName)}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setDeleteCompanyModalOpen(false);
+        router.push('/admin/companies');
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.error || 'Failed to delete company.');
+      }
+    } catch (err) {
+      console.error('Failed to delete company:', err);
+      alert('An error occurred while deleting the company.');
+    } finally {
+      setIsDeletingCompany(false);
     }
   };
 
@@ -244,14 +271,26 @@ export default function AdminCompanyDetailPage() {
           </div>
         </div>
 
-        {/* Direct Add JD Button with pre-filled Company Name */}
-        <Link
-          href={`/admin/jobs/new?company=${encodeURIComponent(companyName)}`}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all self-start md:self-auto shrink-0"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>+ Add JD for {companyName}</span>
-        </Link>
+        {/* Actions: Add JD and Delete Company */}
+        <div className="flex items-center gap-3 self-start md:self-auto shrink-0 flex-wrap">
+          <Link
+            href={`/admin/jobs/new?company=${encodeURIComponent(companyName)}`}
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>+ Add JD for {companyName}</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setDeleteCompanyModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white font-bold text-sm rounded-xl border border-rose-200 hover:border-rose-600 transition-all shadow-sm"
+            title="Delete this company and all its JDs"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete Company</span>
+          </button>
+        </div>
       </div>
 
       {/* JDs List Table */}
@@ -409,6 +448,16 @@ export default function AdminCompanyDetailPage() {
           setDeleteModalOpen(false);
           setJobToDelete(null);
         }}
+      />
+
+      {/* Delete Company Modal */}
+      <DeleteCompanyModal
+        isOpen={deleteCompanyModalOpen}
+        companyName={companyName}
+        totalJobsCount={jobs.length}
+        isDeleting={isDeletingCompany}
+        onConfirm={handleConfirmDeleteCompany}
+        onCancel={() => setDeleteCompanyModalOpen(false)}
       />
     </div>
   );
