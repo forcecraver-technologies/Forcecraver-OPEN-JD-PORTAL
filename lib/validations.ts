@@ -9,6 +9,8 @@ export interface JobInput {
   jobDescription: string;
   postedDate: string;
   status: 'ACTIVE' | 'CLOSED';
+  uan?: string;
+  notes?: string;
 }
 
 export interface ValidationError {
@@ -42,6 +44,10 @@ export function validateJobInput(data: Partial<JobInput>): { isValid: boolean; e
 
   if (data.status && !['ACTIVE', 'CLOSED'].includes(data.status)) {
     errors.status = 'Status must be either ACTIVE or CLOSED';
+  }
+
+  if (data.uan && !['Required', 'Not Required', 'NotRequired'].includes(data.uan)) {
+    errors.uan = 'UAN must be either Required or Not Required';
   }
 
   return {

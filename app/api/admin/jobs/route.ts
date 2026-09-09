@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
       experience: searchParams.get('experience') || undefined,
       location: searchParams.get('location') || undefined,
       status: (searchParams.get('status') as any) || 'ALL', // Admin views ALL by default
+      uan: searchParams.get('uan') || undefined,
       postedDate: (searchParams.get('postedDate') as any) || 'all',
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,

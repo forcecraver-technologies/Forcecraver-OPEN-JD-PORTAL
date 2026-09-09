@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Job, CompanyWithCount } from '@/types/job';
 import ExportModal from '@/components/admin/ExportModal';
 import Pagination from '@/components/Pagination';
+import NotesModal from '@/components/NotesModal';
 import {
   Briefcase,
   Building2,
@@ -14,6 +15,8 @@ import {
   ExternalLink,
   FileSpreadsheet,
   Filter,
+  ShieldCheck,
+  StickyNote,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -41,6 +44,7 @@ export default function JobDirectoryTable({
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [companyFilter, setCompanyFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [uanFilter, setUanFilter] = useState('ALL');
   const [dateFilter, setDateFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -59,6 +63,9 @@ export default function JobDirectoryTable({
 
   // Export Modal state
   const [exportModalOpen, setExportModalOpen] = useState(false);
+
+  // Notes Modal state
+  const [selectedNotesJob, setSelectedNotesJob] = useState<Job | null>(null);
 
   // Load companies if not provided
   useEffect(() => {
@@ -87,6 +94,7 @@ export default function JobDirectoryTable({
       if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
       if (companyFilter) params.set('company', companyFilter);
       if (statusFilter && statusFilter !== 'ALL') params.set('status', statusFilter);
+      if (uanFilter && uanFilter !== 'ALL') params.set('uan', uanFilter);
       if (dateFilter && dateFilter !== 'all' && dateFilter !== 'custom') {
         params.set('postedDate', dateFilter);
       }
@@ -110,7 +118,7 @@ export default function JobDirectoryTable({
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, companyFilter, statusFilter, dateFilter, startDate, endDate, currentPage, isPublic]);
+  }, [debouncedSearch, companyFilter, statusFilter, uanFilter, dateFilter, startDate, endDate, currentPage, isPublic]);
 
   useEffect(() => {
     fetchJobs();
@@ -127,6 +135,7 @@ export default function JobDirectoryTable({
     setDebouncedSearch('');
     setCompanyFilter('');
     setStatusFilter('ALL');
+    setUanFilter('ALL');
     setDateFilter('all');
     setStartDate('');
     setEndDate('');
@@ -137,6 +146,7 @@ export default function JobDirectoryTable({
     searchQuery ||
     companyFilter ||
     statusFilter !== 'ALL' ||
+    uanFilter !== 'ALL' ||
     dateFilter !== 'all' ||
     startDate ||
     endDate
@@ -222,6 +232,23 @@ export default function JobDirectoryTable({
               {!isPublic && <option value="CLOSED">Inactive Only</option>}
             </select>
             <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+          </div>
+
+          {/* UAN Filter Dropdown */}
+          <div className="relative min-w-[130px]">
+            <select
+              value={uanFilter}
+              onChange={(e) => {
+                setUanFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none appearance-none pr-8 cursor-pointer"
+            >
+              <option value="ALL">All UAN</option>
+              <option value="Required">UAN Required</option>
+              <option value="Not Required">UAN Not Req.</option>
+            </select>
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
           </div>
 
           {/* Date Filter Dropdown */}
@@ -312,6 +339,8 @@ export default function JobDirectoryTable({
               <th className="py-3.5 px-6">Company</th>
               <th className="py-3.5 px-6">Job Title</th>
               <th className="py-3.5 px-6">Location</th>
+              <th className="py-3.5 px-6">UAN</th>
+              <th className="py-3.5 px-6">Notes</th>
               <th className="py-3.5 px-6">Posted Date</th>
               <th className="py-3.5 px-6">Status</th>
               <th className="py-3.5 px-6 text-right">Actions</th>
@@ -320,7 +349,7 @@ export default function JobDirectoryTable({
           <tbody className="divide-y divide-slate-100 text-slate-700">
             {loading ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-slate-400">
+                <td colSpan={8} className="py-12 text-center text-slate-400">
                   <div className="w-7 h-7 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   Loading job descriptions...
                 </td>
@@ -350,6 +379,33 @@ export default function JobDirectoryTable({
                     </td>
                     <td className="py-4 px-6 text-slate-600">
                       {job.location || 'Remote'}
+                    </td>
+                    <td className="py-4 px-6">
+                      {job.uan === 'Required' ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
+                          <ShieldCheck className="w-3 h-3 text-amber-600" />
+                          Required
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                          Not Required
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6">
+                      {job.notes && job.notes.trim() ? (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedNotesJob(job)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-blue-50/80 text-blue-700 border border-blue-200/80 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-800 transition-all cursor-pointer shadow-2xs group"
+                          title="Click to view notes"
+                        >
+                          <StickyNote className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+                          <span>View Notes</span>
+                        </button>
+                      ) : (
+                        <span className="text-slate-300 text-xs font-mono">—</span>
+                      )}
                     </td>
                     <td className="py-4 px-6 text-slate-600 text-xs">
                       {dateStr}
@@ -381,7 +437,7 @@ export default function JobDirectoryTable({
               })
             ) : (
               <tr>
-                <td colSpan={6} className="py-10 text-center text-slate-400">
+                <td colSpan={8} className="py-10 text-center text-slate-400">
                   No job descriptions found matching your filters.
                 </td>
               </tr>
@@ -414,10 +470,20 @@ export default function JobDirectoryTable({
           search: searchQuery,
           company: companyFilter,
           status: statusFilter,
+          uan: uanFilter,
           postedDate: dateFilter,
           startDate,
           endDate,
         }}
+      />
+
+      {/* Notes Modal */}
+      <NotesModal
+        isOpen={!!selectedNotesJob}
+        onClose={() => setSelectedNotesJob(null)}
+        title={selectedNotesJob?.jobTitle}
+        company={selectedNotesJob?.companyName}
+        notes={selectedNotesJob?.notes}
       />
     </div>
   );

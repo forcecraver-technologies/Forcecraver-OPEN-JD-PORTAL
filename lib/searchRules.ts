@@ -273,6 +273,16 @@ export function buildJobWhereClause(filters: JobFilterParams): {
     });
   }
 
+  // UAN Requirement Filter
+  if (filters.uan && filters.uan !== 'ALL') {
+    andConditions.push({
+      uan: {
+        equals: filters.uan,
+        mode: 'insensitive',
+      },
+    });
+  }
+
   // Posted Date Filter
   if (filters.startDate || filters.endDate) {
     const dateCondition: Prisma.DateTimeFilter = {};

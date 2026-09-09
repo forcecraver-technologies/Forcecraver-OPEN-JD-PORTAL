@@ -12,6 +12,8 @@ export interface Job {
   jobDescription?: string;
   postedDate: string | Date;
   status: JobStatus;
+  uan?: string | null;
+  notes?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
@@ -24,6 +26,7 @@ export interface JobFilterParams {
   experience?: string;
   location?: string;
   status?: JobStatus | 'ALL';
+  uan?: string;
   postedDate?: 'today' | '7days' | '30days' | 'all';
   startDate?: string;
   endDate?: string;

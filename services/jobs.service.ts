@@ -46,6 +46,8 @@ export class JobsService {
           salaryBudget: true,
           postedDate: true,
           status: true,
+          uan: true,
+          notes: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -344,6 +346,8 @@ export class JobsService {
         jobDescription: data.jobDescription.trim(),
         postedDate: new Date(data.postedDate),
         status: data.status as JobStatus,
+        uan: data.uan?.trim() || 'Not Required',
+        notes: data.notes?.trim() || null,
       },
     });
   }
@@ -365,6 +369,8 @@ export class JobsService {
     if (data.jobDescription !== undefined) updateData.jobDescription = data.jobDescription.trim();
     if (data.postedDate !== undefined) updateData.postedDate = new Date(data.postedDate);
     if (data.status !== undefined) updateData.status = data.status as JobStatus;
+    if (data.uan !== undefined) updateData.uan = data.uan?.trim() || 'Not Required';
+    if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
 
     return await prisma.job.update({
       where: { id },

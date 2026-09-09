@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 import DeleteCompanyModal from '@/components/admin/DeleteCompanyModal';
+import NotesModal from '@/components/NotesModal';
 import { Job } from '@/types/job';
 import {
   Building2,
@@ -23,6 +24,8 @@ import {
   Edit2,
   Check,
   X,
+  ShieldCheck,
+  StickyNote,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -49,6 +52,9 @@ export default function AdminCompanyDetailPage() {
   // Delete Company modal state
   const [deleteCompanyModalOpen, setDeleteCompanyModalOpen] = useState(false);
   const [isDeletingCompany, setIsDeletingCompany] = useState(false);
+
+  // Notes Modal state
+  const [selectedNotesJob, setSelectedNotesJob] = useState<Job | null>(null);
 
   const fetchCompanyJobs = useCallback(async () => {
     try {
@@ -309,6 +315,8 @@ export default function AdminCompanyDetailPage() {
                 <th className="py-4 px-6">Job Title</th>
                 <th className="py-4 px-6">Location</th>
                 <th className="py-4 px-6">Experience</th>
+                <th className="py-4 px-6">UAN</th>
+                <th className="py-4 px-6">Notes</th>
                 <th className="py-4 px-6">Posted Date</th>
                 <th className="py-4 px-6">Status & Quick Toggle</th>
                 <th className="py-4 px-6 text-right">Actions</th>
@@ -317,7 +325,7 @@ export default function AdminCompanyDetailPage() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     Loading job descriptions...
                   </td>
@@ -355,6 +363,37 @@ export default function AdminCompanyDetailPage() {
                           <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{job.experience || '—'}</span>
                         </div>
+                      </td>
+
+                      {/* UAN */}
+                      <td className="py-4 px-6">
+                        {job.uan === 'Required' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
+                            <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                            Required
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                            Not Required
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Notes */}
+                      <td className="py-4 px-6">
+                        {job.notes && job.notes.trim() ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedNotesJob(job)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-blue-50/80 text-blue-700 border border-blue-200/80 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-800 transition-all cursor-pointer shadow-2xs group"
+                            title="Click to view notes"
+                          >
+                            <StickyNote className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+                            <span>View Notes</span>
+                          </button>
+                        ) : (
+                          <span className="text-slate-300 text-xs font-mono">—</span>
+                        )}
                       </td>
 
                       {/* Posted Date */}
@@ -427,7 +466,7 @@ export default function AdminCompanyDetailPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     No job descriptions found for {companyName}.
                   </td>
                 </tr>
@@ -458,6 +497,15 @@ export default function AdminCompanyDetailPage() {
         isDeleting={isDeletingCompany}
         onConfirm={handleConfirmDeleteCompany}
         onCancel={() => setDeleteCompanyModalOpen(false)}
+      />
+
+      {/* Notes Modal */}
+      <NotesModal
+        isOpen={!!selectedNotesJob}
+        onClose={() => setSelectedNotesJob(null)}
+        title={selectedNotesJob?.jobTitle}
+        company={selectedNotesJob?.companyName}
+        notes={selectedNotesJob?.notes}
       />
     </div>
   );

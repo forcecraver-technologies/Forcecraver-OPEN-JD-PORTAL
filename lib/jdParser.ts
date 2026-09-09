@@ -11,6 +11,8 @@ export interface ParsedJDFields {
   experience?: string;
   salaryBudget?: string;
   skills?: string;
+  uan?: string;
+  notes?: string;
   jobDescription: string;
 }
 
@@ -282,6 +284,32 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
         result.contactPerson = toTitleCase(cleaned);
         break;
       }
+    }
+  }
+
+  // -------------------------------------------------------------
+  // 8. EXTRACT UAN REQUIREMENT
+  // -------------------------------------------------------------
+  const uanPattern = /(?:UAN|Universal\s*Account\s*Number)\s*[:\-–●•]?\s*(Required|Not\s*Required|Mandatory|Compulsory|Yes|No|NA|N\/A)/i;
+  const uanMatch = trimmed.match(uanPattern);
+  if (uanMatch && uanMatch[1]) {
+    const val = uanMatch[1].toLowerCase().trim();
+    if (val.includes('not') || val === 'no' || val === 'na' || val === 'n/a') {
+      result.uan = 'Not Required';
+    } else if (val === 'required' || val === 'mandatory' || val === 'compulsory' || val === 'yes') {
+      result.uan = 'Required';
+    }
+  }
+
+  // -------------------------------------------------------------
+  // 9. EXTRACT NOTES / SPECIAL INSTRUCTIONS
+  // -------------------------------------------------------------
+  const notesPattern = /(?:[*_~#`]*(?:Important\s*)?Note[s]?|Special\s*Instruction[s]?|Remarks?)[*_~#`]*\s*[:\-–●•]\s*([^\n\r]+(?:\r?\n(?![A-Za-z\s]+:)[^\n\r]+)*)/i;
+  const notesMatch = trimmed.match(notesPattern);
+  if (notesMatch && notesMatch[1]) {
+    const cleanedNotes = notesMatch[1].trim();
+    if (cleanedNotes.length > 3) {
+      result.notes = cleanedNotes;
     }
   }
 

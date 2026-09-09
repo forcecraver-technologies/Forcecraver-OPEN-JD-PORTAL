@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 import ExportModal from '@/components/admin/ExportModal';
 import Pagination from '@/components/Pagination';
+import NotesModal from '@/components/NotesModal';
 import { Job } from '@/types/job';
 import {
   Briefcase,
@@ -26,6 +27,8 @@ import {
   Layers,
   FileSpreadsheet,
   Filter,
+  ShieldCheck,
+  StickyNote,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -43,6 +46,7 @@ function ManageJobsContent() {
   const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get('search') || '');
   const [companyFilter, setCompanyFilter] = useState(searchParams.get('company') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [uanFilter, setUanFilter] = useState(searchParams.get('uan') || 'ALL');
   const [dateFilter, setDateFilter] = useState(searchParams.get('postedDate') || 'all');
   const [startDate, setStartDate] = useState(searchParams.get('startDate') || '');
   const [endDate, setEndDate] = useState(searchParams.get('endDate') || '');
@@ -64,6 +68,9 @@ function ManageJobsContent() {
 
   // Export Modal state
   const [exportModalOpen, setExportModalOpen] = useState(false);
+
+  // Notes Modal state
+  const [selectedNotesJob, setSelectedNotesJob] = useState<Job | null>(null);
 
   // Multiple selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -102,6 +109,7 @@ function ManageJobsContent() {
       if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
       if (companyFilter) params.set('company', companyFilter);
       if (statusFilter && statusFilter !== 'ALL') params.set('status', statusFilter);
+      if (uanFilter && uanFilter !== 'ALL') params.set('uan', uanFilter);
       if (dateFilter && dateFilter !== 'all' && dateFilter !== 'custom') {
         params.set('postedDate', dateFilter);
       }
@@ -124,7 +132,7 @@ function ManageJobsContent() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, companyFilter, statusFilter, dateFilter, startDate, endDate, currentPage]);
+  }, [debouncedSearch, companyFilter, statusFilter, uanFilter, dateFilter, startDate, endDate, currentPage]);
 
   useEffect(() => {
     fetchAdminJobs();
@@ -133,7 +141,7 @@ function ManageJobsContent() {
   // Clean selections if page or filters change
   useEffect(() => {
     setSelectedIds([]);
-  }, [currentPage, statusFilter, companyFilter, dateFilter, startDate, endDate, debouncedSearch]);
+  }, [currentPage, statusFilter, companyFilter, uanFilter, dateFilter, startDate, endDate, debouncedSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -345,6 +353,23 @@ function ManageJobsContent() {
               <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
             </div>
 
+            {/* UAN Filter Dropdown */}
+            <div className="relative min-w-[130px] flex-1 sm:flex-initial">
+              <select
+                value={uanFilter}
+                onChange={(e) => {
+                  setUanFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none pr-8 cursor-pointer"
+              >
+                <option value="ALL">All UAN</option>
+                <option value="Required">UAN Required</option>
+                <option value="Not Required">UAN Not Req.</option>
+              </select>
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+            </div>
+
             {/* Date Filter Dropdown */}
             <div className="relative min-w-[145px] flex-1 sm:flex-initial">
               <select
@@ -365,13 +390,14 @@ function ManageJobsContent() {
             </div>
 
             {/* Reset Filters Button */}
-            {(searchQuery || companyFilter || statusFilter !== 'ALL' || dateFilter !== 'all' || startDate || endDate) && (
+            {(searchQuery || companyFilter || statusFilter !== 'ALL' || uanFilter !== 'ALL' || dateFilter !== 'all' || startDate || endDate) && (
               <button
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
                   setCompanyFilter('');
                   setStatusFilter('ALL');
+                  setUanFilter('ALL');
                   setDateFilter('all');
                   setStartDate('');
                   setEndDate('');
@@ -517,6 +543,8 @@ function ManageJobsContent() {
                 <th className="py-4 px-4">Company</th>
                 <th className="py-4 px-6">Job Title</th>
                 <th className="py-4 px-6">Location</th>
+                <th className="py-4 px-6">UAN</th>
+                <th className="py-4 px-6">Notes</th>
                 <th className="py-4 px-6">Posted Date</th>
                 <th className="py-4 px-6">Status & Quick Toggle</th>
                 <th className="py-4 px-6 text-right">Actions</th>
@@ -525,7 +553,7 @@ function ManageJobsContent() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     Loading job descriptions...
                   </td>
@@ -584,6 +612,37 @@ function ManageJobsContent() {
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{job.location || '—'}</span>
                         </div>
+                      </td>
+
+                      {/* UAN Requirement */}
+                      <td className="py-4 px-6">
+                        {job.uan === 'Required' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
+                            <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                            Required
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                            Not Required
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Notes */}
+                      <td className="py-4 px-6">
+                        {job.notes && job.notes.trim() ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedNotesJob(job)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-blue-50/80 text-blue-700 border border-blue-200/80 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-800 transition-all cursor-pointer shadow-2xs group"
+                            title="Click to view notes"
+                          >
+                            <StickyNote className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+                            <span>View Notes</span>
+                          </button>
+                        ) : (
+                          <span className="text-slate-300 text-xs font-mono">—</span>
+                        )}
                       </td>
 
                       {/* Posted Date */}
@@ -656,7 +715,7 @@ function ManageJobsContent() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     No job descriptions match your filters.
                   </td>
                 </tr>
@@ -711,10 +770,20 @@ function ManageJobsContent() {
           search: searchQuery,
           company: companyFilter,
           status: statusFilter,
+          uan: uanFilter,
           postedDate: dateFilter,
           startDate,
           endDate,
         }}
+      />
+
+      {/* Notes Modal */}
+      <NotesModal
+        isOpen={!!selectedNotesJob}
+        onClose={() => setSelectedNotesJob(null)}
+        title={selectedNotesJob?.jobTitle}
+        company={selectedNotesJob?.companyName}
+        notes={selectedNotesJob?.notes}
       />
     </div>
   );

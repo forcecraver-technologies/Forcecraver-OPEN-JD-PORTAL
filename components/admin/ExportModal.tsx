@@ -24,6 +24,7 @@ interface ExportModalProps {
     search?: string;
     company?: string;
     status?: string;
+    uan?: string;
     postedDate?: string;
     startDate?: string;
     endDate?: string;
@@ -72,6 +73,7 @@ export default function ExportModal({
       if (filters.search) params.set('search', filters.search);
       if (filters.company) params.set('company', filters.company);
       if (filters.status && filters.status !== 'ALL') params.set('status', filters.status);
+      if (filters.uan && filters.uan !== 'ALL') params.set('uan', filters.uan);
       if (filters.postedDate && filters.postedDate !== 'all') params.set('postedDate', filters.postedDate);
       if (filters.startDate) params.set('startDate', filters.startDate);
       if (filters.endDate) params.set('endDate', filters.endDate);

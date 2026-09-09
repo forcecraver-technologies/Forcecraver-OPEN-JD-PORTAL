@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       experience: searchParams.get('experience') || undefined,
       location: searchParams.get('location') || undefined,
       status: 'ACTIVE', // Always ACTIVE for public export
+      uan: searchParams.get('uan') || undefined,
       postedDate: (searchParams.get('postedDate') as any) || 'all',
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,
@@ -59,6 +60,8 @@ export async function GET(request: NextRequest) {
         'Status': 'Active',
         'Company Name': job.companyName,
         'Job Title': job.jobTitle,
+        'UAN Requirement': job.uan || 'Not Required',
+        'Important Notes': job.notes || '—',
         'Experience': job.experience || '—',
         'Location': job.location || '—',
         'Salary / Budget': job.salaryBudget || '—',
@@ -76,6 +79,8 @@ export async function GET(request: NextRequest) {
       { wch: 14 }, // Status
       { wch: 25 }, // Company Name
       { wch: 30 }, // Job Title
+      { wch: 18 }, // UAN Requirement
+      { wch: 30 }, // Important Notes
       { wch: 16 }, // Experience
       { wch: 20 }, // Location
       { wch: 18 }, // Salary / Budget

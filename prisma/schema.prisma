@@ -24,6 +24,8 @@ model Job {
   jobDescription  String    @map("job_description") @db.Text
   postedDate      DateTime  @map("posted_date") @db.Date
   status          JobStatus @default(ACTIVE)
+  uan             String    @default("Not Required") @map("uan")
+  notes           String?   @db.Text @map("notes")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 

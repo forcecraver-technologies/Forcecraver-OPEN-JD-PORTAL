@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Job } from '@/types/job';
-import { Building2, MapPin, Briefcase, IndianRupee, Calendar, ArrowRight, CheckCircle2, XCircle, UserCheck } from 'lucide-react';
+import NotesModal from '@/components/NotesModal';
+import { Building2, MapPin, Briefcase, IndianRupee, Calendar, ArrowRight, CheckCircle2, XCircle, UserCheck, ShieldCheck, StickyNote } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 
 interface JobCardProps {
@@ -29,6 +30,8 @@ export default function JobCard({ job }: JobCardProps) {
     : [];
 
   const isActive = job.status === 'ACTIVE';
+  const isUanRequired = job.uan === 'Required';
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200 flex flex-col justify-between group">
@@ -47,17 +50,30 @@ export default function JobCard({ job }: JobCardProps) {
             </span>
           </Link>
 
-          {isActive ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-              <CheckCircle2 className="w-3 h-3" />
-              Active
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-              <XCircle className="w-3 h-3" />
-              Closed
-            </span>
-          )}
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            {isUanRequired ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
+                <ShieldCheck className="w-3 h-3 text-amber-600" />
+                UAN Required
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                UAN Not Req.
+              </span>
+            )}
+
+            {isActive ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                <CheckCircle2 className="w-3 h-3" />
+                Active
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                <XCircle className="w-3 h-3" />
+                Closed
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Job Title */}
@@ -126,10 +142,26 @@ export default function JobCard({ job }: JobCardProps) {
       </div>
 
       {/* Card Action Footer */}
-      <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-        <span className="text-xs text-slate-500 font-mono">
-          Ref: #{job.id.slice(0, 8)}
-        </span>
+      <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 font-mono">
+            Ref: #{job.id.slice(0, 8)}
+          </span>
+          {job.notes && job.notes.trim() && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsNotesOpen(true);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:text-blue-800 transition-all cursor-pointer shadow-2xs group/btn"
+              title="Click to view notes"
+            >
+              <StickyNote className="w-3 h-3 text-blue-600 group-hover/btn:scale-110 transition-transform" />
+              <span>Notes</span>
+            </button>
+          )}
+        </div>
 
         <Link
           href={`/jobs/${job.id}`}
@@ -139,6 +171,15 @@ export default function JobCard({ job }: JobCardProps) {
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
+
+      {/* Notes Modal */}
+      <NotesModal
+        isOpen={isNotesOpen}
+        onClose={() => setIsNotesOpen(false)}
+        title={job.jobTitle}
+        company={job.companyName}
+        notes={job.notes}
+      />
     </div>
   );
 }

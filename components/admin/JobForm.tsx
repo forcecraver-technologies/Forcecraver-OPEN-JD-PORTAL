@@ -20,6 +20,8 @@ import {
   ClipboardPaste,
   RotateCcw,
   UserCheck,
+  ShieldCheck,
+  StickyNote,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -51,6 +53,8 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
     jobDescription: initialJob?.jobDescription || '',
     postedDate: defaultPostedDate,
     status: (initialJob?.status as any) || 'ACTIVE',
+    uan: initialJob?.uan || 'Not Required',
+    notes: initialJob?.notes || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -107,6 +111,14 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
       }
       if (parsed.skills) {
         next.skills = parsed.skills;
+        extractedCount++;
+      }
+      if (parsed.uan) {
+        next.uan = parsed.uan;
+        extractedCount++;
+      }
+      if (parsed.notes) {
+        next.notes = parsed.notes;
         extractedCount++;
       }
       if (parsed.jobDescription) {
@@ -406,6 +418,28 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
             {errors.postedDate && <p className="text-xs text-rose-500">{errors.postedDate}</p>}
           </div>
 
+          {/* UAN Requirement Dropdown */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              UAN Requirement <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <ShieldCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <select
+                value={formData.uan || 'Not Required'}
+                onChange={(e) => handleChange('uan', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 bg-slate-50/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all appearance-none cursor-pointer"
+              >
+                <option value="Not Required">Not Required</option>
+                <option value="Required">Required</option>
+              </select>
+              <div className="absolute right-3.5 top-3.5 pointer-events-none text-slate-400 text-xs">
+                ▼
+              </div>
+            </div>
+            {errors.uan && <p className="text-xs text-rose-500">{errors.uan}</p>}
+          </div>
+
           {/* Skills */}
           <div className="sm:col-span-2 space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -480,6 +514,31 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
           {errors.jobDescription && (
             <p className="text-xs text-rose-500">{errors.jobDescription}</p>
           )}
+        </div>
+      </div>
+
+      {/* 4. IMPORTANT NOTES / RECRUITER INSTRUCTIONS */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
+        <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <StickyNote className="w-5 h-5 text-blue-600" />
+            Important Notes / Recruiter Instructions
+          </h3>
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Optional</span>
+        </div>
+
+        <p className="text-xs text-slate-500">
+          Add any special candidate instructions, screening criteria, or recruiter remarks. Candidates and recruiters can view these by clicking the &quot;View Notes&quot; button.
+        </p>
+
+        <div className="space-y-1.5">
+          <textarea
+            rows={4}
+            placeholder="e.g. Mandatory immediate joiners only. Candidate must have a strong portfolio in Next.js. Relocation allowance provided..."
+            value={formData.notes || ''}
+            onChange={(e) => handleChange('notes', e.target.value)}
+            className="w-full p-4 rounded-xl border border-slate-200 text-sm text-slate-900 font-sans leading-relaxed bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
+          />
         </div>
       </div>
 
