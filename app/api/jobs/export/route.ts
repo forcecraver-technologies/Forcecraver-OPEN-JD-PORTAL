@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
       location: searchParams.get('location') || undefined,
       status: 'ACTIVE', // Always ACTIVE for public export
       uan: searchParams.get('uan') || undefined,
+      shiftTiming: searchParams.get('shiftTiming') || undefined,
       postedDate: (searchParams.get('postedDate') as any) || 'all',
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,
@@ -60,6 +61,7 @@ export async function GET(request: NextRequest) {
         'Status': 'Active',
         'Company Name': job.companyName,
         'Job Title': job.jobTitle,
+        'Shift Timing': job.shiftTiming || 'Day Shift (India)',
         'UAN Requirement': job.uan || 'Not Required',
         'Important Notes': job.notes || '—',
         'Experience': job.experience || '—',
@@ -79,6 +81,7 @@ export async function GET(request: NextRequest) {
       { wch: 14 }, // Status
       { wch: 25 }, // Company Name
       { wch: 30 }, // Job Title
+      { wch: 22 }, // Shift Timing
       { wch: 18 }, // UAN Requirement
       { wch: 30 }, // Important Notes
       { wch: 16 }, // Experience

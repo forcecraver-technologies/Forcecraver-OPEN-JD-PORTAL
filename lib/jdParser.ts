@@ -13,6 +13,7 @@ export interface ParsedJDFields {
   skills?: string;
   uan?: string;
   notes?: string;
+  shiftTiming?: string;
   jobDescription: string;
 }
 
@@ -310,6 +311,52 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
     const cleanedNotes = notesMatch[1].trim();
     if (cleanedNotes.length > 3) {
       result.notes = cleanedNotes;
+    }
+  }
+
+  // -------------------------------------------------------------
+  // 10. EXTRACT SHIFT TIMING
+  // -------------------------------------------------------------
+  const shiftPattern = /(?:Shift\s*(?:Timing|Hours|Type)?|Working\s*(?:Shift|Hours))[*_~#`]*\s*[:\-–●•]\s*([^\n\r,●•|]+)/i;
+  const shiftMatch = trimmed.match(shiftPattern);
+  if (shiftMatch && shiftMatch[1]) {
+    const val = shiftMatch[1].toLowerCase().trim();
+    if (val.includes('us') || val.includes('american') || val.includes('est') || val.includes('pst') || val.includes('cst')) {
+      result.shiftTiming = 'US / American Shift';
+    } else if (val.includes('uk') || val.includes('british') || val.includes('european') || val.includes('gmt') || val.includes('bst')) {
+      result.shiftTiming = 'UK / European Shift';
+    } else if (val.includes('australia') || val.includes('aest') || val.includes('aedt')) {
+      result.shiftTiming = 'Australian Shift';
+    } else if (val.includes('middle east') || val.includes('gulf') || val.includes('dubai') || val.includes('uae')) {
+      result.shiftTiming = 'Middle East / Gulf Shift';
+    } else if (val.includes('rotational') || val.includes('24/7') || val.includes('rotation')) {
+      result.shiftTiming = 'Rotational Shift';
+    } else if (val.includes('night') || val.includes('graveyard')) {
+      result.shiftTiming = 'Night Shift';
+    } else if (val.includes('day') || val.includes('general') || val.includes('india') || val.includes('ist') || val.includes('regular')) {
+      result.shiftTiming = 'Day Shift (India)';
+    } else if (val.includes('flexible') || val.includes('flexi') || val.includes('hybrid')) {
+      result.shiftTiming = 'Flexible / Hybrid';
+    } else {
+      const cleanedCustom = cleanString(shiftMatch[1]);
+      if (cleanedCustom.length >= 3 && cleanedCustom.length <= 40) {
+        result.shiftTiming = cleanedCustom;
+      }
+    }
+  } else {
+    // Keyword scan in full text
+    if (/\b(?:us\s+shift|american\s+shift)\b/i.test(trimmed)) {
+      result.shiftTiming = 'US / American Shift';
+    } else if (/\b(?:uk\s+shift|european\s+shift)\b/i.test(trimmed)) {
+      result.shiftTiming = 'UK / European Shift';
+    } else if (/\b(?:australian\s+shift|australia\s+shift)\b/i.test(trimmed)) {
+      result.shiftTiming = 'Australian Shift';
+    } else if (/\b(?:middle\s*east\s+shift|gulf\s+shift)\b/i.test(trimmed)) {
+      result.shiftTiming = 'Middle East / Gulf Shift';
+    } else if (/\b(?:rotational\s+shift|24\/7\s+shift)\b/i.test(trimmed)) {
+      result.shiftTiming = 'Rotational Shift';
+    } else if (/\b(?:night\s+shift)\b/i.test(trimmed)) {
+      result.shiftTiming = 'Night Shift';
     }
   }
 

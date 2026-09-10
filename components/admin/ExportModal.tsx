@@ -25,6 +25,7 @@ interface ExportModalProps {
     company?: string;
     status?: string;
     uan?: string;
+    shiftTiming?: string;
     postedDate?: string;
     startDate?: string;
     endDate?: string;
@@ -74,6 +75,7 @@ export default function ExportModal({
       if (filters.company) params.set('company', filters.company);
       if (filters.status && filters.status !== 'ALL') params.set('status', filters.status);
       if (filters.uan && filters.uan !== 'ALL') params.set('uan', filters.uan);
+      if (filters.shiftTiming && filters.shiftTiming !== 'ALL') params.set('shiftTiming', filters.shiftTiming);
       if (filters.postedDate && filters.postedDate !== 'all') params.set('postedDate', filters.postedDate);
       if (filters.startDate) params.set('startDate', filters.startDate);
       if (filters.endDate) params.set('endDate', filters.endDate);
@@ -200,6 +202,16 @@ export default function ExportModal({
                   : 'All Time'}
               </strong>
             </span>
+            {filters.uan && filters.uan !== 'ALL' && (
+              <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium">
+                UAN: <strong>{filters.uan}</strong>
+              </span>
+            )}
+            {filters.shiftTiming && filters.shiftTiming !== 'ALL' && (
+              <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium">
+                Shift: <strong>{filters.shiftTiming}</strong>
+              </span>
+            )}
             {filters.search && (
               <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium">
                 Keyword: <strong>&ldquo;{filters.search}&rdquo;</strong>

@@ -26,6 +26,7 @@ model Job {
   status          JobStatus @default(ACTIVE)
   uan             String    @default("Not Required") @map("uan")
   notes           String?   @db.Text @map("notes")
+  shiftTiming     String?   @default("Day Shift (India)") @map("shift_timing")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 

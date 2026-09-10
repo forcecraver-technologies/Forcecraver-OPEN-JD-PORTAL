@@ -48,6 +48,7 @@ export class JobsService {
           status: true,
           uan: true,
           notes: true,
+          shiftTiming: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -348,6 +349,7 @@ export class JobsService {
         status: data.status as JobStatus,
         uan: data.uan?.trim() || 'Not Required',
         notes: data.notes?.trim() || null,
+        shiftTiming: data.shiftTiming?.trim() || 'Day Shift (India)',
       },
     });
   }
@@ -371,6 +373,7 @@ export class JobsService {
     if (data.status !== undefined) updateData.status = data.status as JobStatus;
     if (data.uan !== undefined) updateData.uan = data.uan?.trim() || 'Not Required';
     if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
+    if (data.shiftTiming !== undefined) updateData.shiftTiming = data.shiftTiming?.trim() || 'Day Shift (India)';
 
     return await prisma.job.update({
       where: { id },

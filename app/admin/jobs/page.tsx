@@ -29,6 +29,7 @@ import {
   Filter,
   ShieldCheck,
   StickyNote,
+  Clock,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -47,6 +48,7 @@ function ManageJobsContent() {
   const [companyFilter, setCompanyFilter] = useState(searchParams.get('company') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
   const [uanFilter, setUanFilter] = useState(searchParams.get('uan') || 'ALL');
+  const [shiftFilter, setShiftFilter] = useState(searchParams.get('shiftTiming') || 'ALL');
   const [dateFilter, setDateFilter] = useState(searchParams.get('postedDate') || 'all');
   const [startDate, setStartDate] = useState(searchParams.get('startDate') || '');
   const [endDate, setEndDate] = useState(searchParams.get('endDate') || '');
@@ -110,6 +112,7 @@ function ManageJobsContent() {
       if (companyFilter) params.set('company', companyFilter);
       if (statusFilter && statusFilter !== 'ALL') params.set('status', statusFilter);
       if (uanFilter && uanFilter !== 'ALL') params.set('uan', uanFilter);
+      if (shiftFilter && shiftFilter !== 'ALL') params.set('shiftTiming', shiftFilter);
       if (dateFilter && dateFilter !== 'all' && dateFilter !== 'custom') {
         params.set('postedDate', dateFilter);
       }
@@ -132,7 +135,7 @@ function ManageJobsContent() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, companyFilter, statusFilter, uanFilter, dateFilter, startDate, endDate, currentPage]);
+  }, [debouncedSearch, companyFilter, statusFilter, uanFilter, shiftFilter, dateFilter, startDate, endDate, currentPage]);
 
   useEffect(() => {
     fetchAdminJobs();
@@ -141,7 +144,7 @@ function ManageJobsContent() {
   // Clean selections if page or filters change
   useEffect(() => {
     setSelectedIds([]);
-  }, [currentPage, statusFilter, companyFilter, uanFilter, dateFilter, startDate, endDate, debouncedSearch]);
+  }, [currentPage, statusFilter, companyFilter, uanFilter, shiftFilter, dateFilter, startDate, endDate, debouncedSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -370,6 +373,29 @@ function ManageJobsContent() {
               <ShieldCheck className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
             </div>
 
+            {/* Shift Timing Filter Dropdown */}
+            <div className="relative min-w-[150px] flex-1 sm:flex-initial">
+              <select
+                value={shiftFilter}
+                onChange={(e) => {
+                  setShiftFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none pr-8 cursor-pointer"
+              >
+                <option value="ALL">All Shifts</option>
+                <option value="Day Shift (India)">Day Shift (India)</option>
+                <option value="US / American Shift">US / American Shift</option>
+                <option value="UK / European Shift">UK / European Shift</option>
+                <option value="Australian Shift">Australian Shift</option>
+                <option value="Middle East / Gulf Shift">Middle East / Gulf Shift</option>
+                <option value="Night Shift">Night Shift</option>
+                <option value="Rotational Shift">Rotational Shift</option>
+                <option value="Flexible / Hybrid">Flexible / Hybrid</option>
+              </select>
+              <Clock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+            </div>
+
             {/* Date Filter Dropdown */}
             <div className="relative min-w-[145px] flex-1 sm:flex-initial">
               <select
@@ -390,7 +416,7 @@ function ManageJobsContent() {
             </div>
 
             {/* Reset Filters Button */}
-            {(searchQuery || companyFilter || statusFilter !== 'ALL' || uanFilter !== 'ALL' || dateFilter !== 'all' || startDate || endDate) && (
+            {(searchQuery || companyFilter || statusFilter !== 'ALL' || uanFilter !== 'ALL' || shiftFilter !== 'ALL' || dateFilter !== 'all' || startDate || endDate) && (
               <button
                 type="button"
                 onClick={() => {
@@ -398,6 +424,7 @@ function ManageJobsContent() {
                   setCompanyFilter('');
                   setStatusFilter('ALL');
                   setUanFilter('ALL');
+                  setShiftFilter('ALL');
                   setDateFilter('all');
                   setStartDate('');
                   setEndDate('');
@@ -543,6 +570,7 @@ function ManageJobsContent() {
                 <th className="py-4 px-4">Company</th>
                 <th className="py-4 px-6">Job Title</th>
                 <th className="py-4 px-6">Location</th>
+                <th className="py-4 px-6">Shift</th>
                 <th className="py-4 px-6">UAN</th>
                 <th className="py-4 px-6">Notes</th>
                 <th className="py-4 px-6">Posted Date</th>
@@ -553,7 +581,7 @@ function ManageJobsContent() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400">
+                  <td colSpan={10} className="py-12 text-center text-slate-400">
                     <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     Loading job descriptions...
                   </td>
@@ -612,6 +640,14 @@ function ManageJobsContent() {
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{job.location || '—'}</span>
                         </div>
+                      </td>
+
+                      {/* Shift Timing */}
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span className="truncate max-w-[130px]">{job.shiftTiming || 'Day Shift (India)'}</span>
+                        </span>
                       </td>
 
                       {/* UAN Requirement */}
@@ -715,7 +751,7 @@ function ManageJobsContent() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400">
+                  <td colSpan={10} className="py-12 text-center text-slate-400">
                     No job descriptions match your filters.
                   </td>
                 </tr>
@@ -771,6 +807,7 @@ function ManageJobsContent() {
           company: companyFilter,
           status: statusFilter,
           uan: uanFilter,
+          shiftTiming: shiftFilter,
           postedDate: dateFilter,
           startDate,
           endDate,

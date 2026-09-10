@@ -17,6 +17,7 @@ import {
   UserCheck,
   ShieldCheck,
   StickyNote,
+  Clock,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -101,6 +102,11 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
                 </span>
               )}
 
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                <Clock className="w-3.5 h-3.5 text-blue-600" />
+                {job.shiftTiming || 'Day Shift (India)'}
+              </span>
+
               {job.uan === 'Required' ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
@@ -134,13 +140,22 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
         </div>
 
         {/* Structured Job Information Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-6 border-b border-slate-100">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 py-6 border-b border-slate-100">
           <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
             <span className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-blue-600" /> Location
             </span>
             <p className="mt-1 text-sm sm:text-base font-bold text-slate-900">
               {job.location || 'Not Specified'}
+            </p>
+          </div>
+
+          <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+            <span className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-blue-600" /> Shift Timing
+            </span>
+            <p className="mt-1 text-sm sm:text-base font-bold text-slate-900">
+              {job.shiftTiming || 'Day Shift (India)'}
             </p>
           </div>
 

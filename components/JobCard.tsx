@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Job } from '@/types/job';
 import NotesModal from '@/components/NotesModal';
-import { Building2, MapPin, Briefcase, IndianRupee, Calendar, ArrowRight, CheckCircle2, XCircle, UserCheck, ShieldCheck, StickyNote } from 'lucide-react';
+import { Building2, MapPin, Briefcase, IndianRupee, Calendar, ArrowRight, CheckCircle2, XCircle, UserCheck, ShieldCheck, StickyNote, Clock } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 
 interface JobCardProps {
@@ -91,6 +91,11 @@ export default function JobCard({ job }: JobCardProps) {
               <span className="truncate">{job.location}</span>
             </div>
           )}
+
+          <div className="flex items-center gap-1.5 text-slate-600 truncate">
+            <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+            <span className="truncate">{job.shiftTiming || 'Day Shift (India)'}</span>
+          </div>
 
           {job.experience && (
             <div className="flex items-center gap-1.5 text-slate-600 truncate">

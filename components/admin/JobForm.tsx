@@ -22,6 +22,7 @@ import {
   UserCheck,
   ShieldCheck,
   StickyNote,
+  Clock,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -29,6 +30,17 @@ interface JobFormProps {
   initialJob?: Job | null;
   mode: 'create' | 'edit';
 }
+
+export const SHIFT_OPTIONS = [
+  'Day Shift (India)',
+  'US / American Shift',
+  'UK / European Shift',
+  'Australian Shift',
+  'Middle East / Gulf Shift',
+  'Night Shift',
+  'Rotational Shift',
+  'Flexible / Hybrid',
+];
 
 export default function JobForm({ initialJob, mode }: JobFormProps) {
   const router = useRouter();
@@ -41,6 +53,11 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
 
   const [rawJdText, setRawJdText] = useState('');
   const [parseNotice, setParseNotice] = useState<string | null>(null);
+
+  const initialShift = initialJob?.shiftTiming || 'Day Shift (India)';
+  const [isCustomShift, setIsCustomShift] = useState(
+    Boolean(initialShift && !SHIFT_OPTIONS.includes(initialShift))
+  );
 
   const [formData, setFormData] = useState<JobInput>({
     companyName: initialJob?.companyName || prefilledCompany || '',
@@ -55,6 +72,7 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
     status: (initialJob?.status as any) || 'ACTIVE',
     uan: initialJob?.uan || 'Not Required',
     notes: initialJob?.notes || '',
+    shiftTiming: initialShift,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -119,6 +137,15 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
       }
       if (parsed.notes) {
         next.notes = parsed.notes;
+        extractedCount++;
+      }
+      if (parsed.shiftTiming) {
+        next.shiftTiming = parsed.shiftTiming;
+        if (!SHIFT_OPTIONS.includes(parsed.shiftTiming)) {
+          setIsCustomShift(true);
+        } else {
+          setIsCustomShift(false);
+        }
         extractedCount++;
       }
       if (parsed.jobDescription) {
@@ -363,6 +390,71 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 bg-slate-50/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
               />
             </div>
+          </div>
+
+          {/* Shift Timing */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Shift Timing <span className="text-rose-500">*</span>
+              </label>
+              {isCustomShift && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomShift(false);
+                    handleChange('shiftTiming', 'Day Shift (India)');
+                  }}
+                  className="text-[11px] font-semibold text-blue-600 hover:underline cursor-pointer"
+                >
+                  Back to Presets
+                </button>
+              )}
+            </div>
+            <div className="relative">
+              <Clock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              {!isCustomShift ? (
+                <>
+                  <select
+                    value={formData.shiftTiming || 'Day Shift (India)'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'CUSTOM') {
+                        setIsCustomShift(true);
+                        handleChange('shiftTiming', '');
+                      } else {
+                        handleChange('shiftTiming', val);
+                      }
+                    }}
+                    className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 bg-slate-50/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all appearance-none cursor-pointer"
+                  >
+                    {SHIFT_OPTIONS.map((shift) => (
+                      <option key={shift} value={shift}>
+                        {shift}
+                      </option>
+                    ))}
+                    <option value="CUSTOM">✏️ Custom Timing...</option>
+                  </select>
+                  <div className="absolute right-3.5 top-3.5 pointer-events-none text-slate-400 text-xs">
+                    ▼
+                  </div>
+                </>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="e.g. 2:00 PM - 11:00 PM, 6:30 PM - 3:30 AM"
+                  value={formData.shiftTiming || ''}
+                  onChange={(e) => handleChange('shiftTiming', e.target.value)}
+                  autoFocus
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-blue-400 text-sm font-semibold text-slate-900 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                />
+              )}
+            </div>
+            {isCustomShift && (
+              <p className="text-[11px] text-slate-400">
+                Type custom shift hours or timezone.
+              </p>
+            )}
           </div>
 
           {/* Experience */}

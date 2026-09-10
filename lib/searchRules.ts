@@ -283,6 +283,16 @@ export function buildJobWhereClause(filters: JobFilterParams): {
     });
   }
 
+  // Shift Timing Filter
+  if (filters.shiftTiming && filters.shiftTiming !== 'ALL') {
+    andConditions.push({
+      shiftTiming: {
+        contains: filters.shiftTiming,
+        mode: 'insensitive',
+      },
+    });
+  }
+
   // Posted Date Filter
   if (filters.startDate || filters.endDate) {
     const dateCondition: Prisma.DateTimeFilter = {};

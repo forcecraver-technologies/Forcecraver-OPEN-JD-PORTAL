@@ -26,6 +26,7 @@ import {
   X,
   ShieldCheck,
   StickyNote,
+  Clock,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -314,6 +315,7 @@ export default function AdminCompanyDetailPage() {
               <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                 <th className="py-4 px-6">Job Title</th>
                 <th className="py-4 px-6">Location</th>
+                <th className="py-4 px-6">Shift</th>
                 <th className="py-4 px-6">Experience</th>
                 <th className="py-4 px-6">UAN</th>
                 <th className="py-4 px-6">Notes</th>
@@ -325,7 +327,7 @@ export default function AdminCompanyDetailPage() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     Loading job descriptions...
                   </td>
@@ -355,6 +357,14 @@ export default function AdminCompanyDetailPage() {
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{job.location || '—'}</span>
                         </div>
+                      </td>
+
+                      {/* Shift Timing */}
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span className="truncate max-w-[130px]">{job.shiftTiming || 'Day Shift (India)'}</span>
+                        </span>
                       </td>
 
                       {/* Experience */}
@@ -466,7 +476,7 @@ export default function AdminCompanyDetailPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     No job descriptions found for {companyName}.
                   </td>
                 </tr>

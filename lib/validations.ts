@@ -11,6 +11,7 @@ export interface JobInput {
   status: 'ACTIVE' | 'CLOSED';
   uan?: string;
   notes?: string;
+  shiftTiming?: string;
 }
 
 export interface ValidationError {

@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
       location: searchParams.get('location') || undefined,
       status: (searchParams.get('status') as any) || 'ACTIVE', // Default to ACTIVE for public
       uan: searchParams.get('uan') || undefined,
+      shiftTiming: searchParams.get('shiftTiming') || undefined,
       postedDate: (searchParams.get('postedDate') as any) || 'all',
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,
