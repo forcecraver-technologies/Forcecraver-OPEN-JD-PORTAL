@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { ShieldCheck, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,9 +48,16 @@ function LoginFormContent() {
   return (
     <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
       {/* Brand Header */}
-      <div className="text-center space-y-2">
-        <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto shadow-lg shadow-blue-500/20">
-          <ShieldCheck className="w-8 h-8" />
+      <div className="text-center space-y-3">
+        <div className="inline-flex items-center justify-center p-2.5 rounded-2xl bg-white border border-slate-100 shadow-sm mx-auto">
+          <Image
+            src="/logo.png"
+            alt="Open JD Logo"
+            width={150}
+            height={40}
+            className="h-10 w-auto object-contain"
+            priority
+          />
         </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Admin Authentication

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Briefcase, Building2, PlusCircle, LogOut, Globe, Menu, X } from 'lucide-react';
 
@@ -44,9 +45,16 @@ export default function AdminNavbar() {
         <div className="flex justify-between items-center h-16">
           {/* Admin Brand */}
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center text-white font-bold shadow-sm">
-                <Briefcase className="w-5 h-5" />
+            <Link href="/admin" className="flex items-center gap-2.5 group">
+              <div className="bg-white px-2 py-1 rounded-lg shadow-xs flex items-center">
+                <Image
+                  src="/logo.png"
+                  alt="Open JD Logo"
+                  width={110}
+                  height={28}
+                  className="h-7 w-auto object-contain"
+                  priority
+                />
               </div>
               <div>
                 <span className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">

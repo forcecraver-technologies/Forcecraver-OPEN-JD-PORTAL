@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Briefcase, ShieldCheck, Database, Search } from 'lucide-react';
 
@@ -20,9 +21,13 @@ export default function Footer() {
           {/* Column 1: Brand */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-                <Briefcase className="w-4 h-4" />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Open JD Logo"
+                width={120}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
               <span className="text-lg font-bold text-slate-900">
                 Open JD <span className="text-blue-600">Portal</span>
               </span>

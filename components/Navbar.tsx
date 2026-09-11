@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Briefcase, Building2, ShieldCheck, Menu, X, Sparkles, LayoutDashboard } from 'lucide-react';
 
@@ -26,11 +27,16 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:bg-blue-700 transition-colors">
-              <Briefcase className="w-5 h-5" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="Open JD Logo"
+              width={130}
+              height={36}
+              className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              priority
+            />
             <div>
-              <span className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
+              <span className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
                 Open JD <span className="text-blue-600 font-semibold">Portal</span>
               </span>
               <span className="block text-[10px] text-slate-500 font-medium tracking-wide uppercase">

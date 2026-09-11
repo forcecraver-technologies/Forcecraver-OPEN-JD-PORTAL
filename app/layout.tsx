@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'Open JD Portal | Find Active Job Opportunities',
   description:
     'Search and browse currently active job descriptions from multiple companies. High-performance, rule-based job discovery engine.',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
