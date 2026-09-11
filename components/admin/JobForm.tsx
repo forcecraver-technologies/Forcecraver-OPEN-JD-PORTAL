@@ -23,8 +23,10 @@ import {
   ShieldCheck,
   StickyNote,
   Clock,
+  Share2,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import LinkedInPostModal from '@/components/LinkedInPostModal';
 
 interface JobFormProps {
   initialJob?: Job | null;
@@ -79,6 +81,7 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [linkedInModalOpen, setLinkedInModalOpen] = useState(false);
 
   const handleChange = (field: keyof JobInput, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -276,15 +279,28 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
           />
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => handleParseRawJd()}
-              disabled={!rawJdText.trim()}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Auto-Fill Form from JD</span>
-            </button>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => handleParseRawJd()}
+                disabled={!rawJdText.trim()}
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Auto-Fill Form from JD</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLinkedInModalOpen(true)}
+                disabled={!rawJdText.trim() && !formData.jobDescription.trim()}
+                className="px-5 py-2.5 bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-50 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2 cursor-pointer"
+                title="Generate formatted LinkedIn Post from this JD"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>LinkedIn Post</span>
+              </button>
+            </div>
 
             <span className="text-[11px] text-slate-500 font-medium">
               ⚡ Rule-based parser extracts Title, Company, Skills, Experience, Location & Salary.
@@ -588,10 +604,23 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
 
       {/* 3. FULL JOB DESCRIPTION CONTENT */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
-        <h3 className="text-lg font-bold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-600" />
-          Job Description Content <span className="text-rose-500">*</span>
-        </h3>
+        <div className="pb-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            Job Description Content <span className="text-rose-500">*</span>
+          </h3>
+
+          <button
+            type="button"
+            onClick={() => setLinkedInModalOpen(true)}
+            disabled={!formData.jobDescription.trim() && !rawJdText.trim()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 hover:bg-[#0a66c2] text-[#0a66c2] hover:text-white border border-blue-200 hover:border-[#0a66c2] text-xs font-bold rounded-xl transition-all disabled:opacity-40 cursor-pointer shadow-2xs"
+            title="Generate formatted LinkedIn post from this description"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>LinkedIn Post</span>
+          </button>
+        </div>
 
         <div className="space-y-1.5">
           <textarea
@@ -654,6 +683,19 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
           {submitting ? 'Saving...' : mode === 'create' ? 'Save JD' : 'Update JD'}
         </button>
       </div>
+
+      <LinkedInPostModal
+        isOpen={linkedInModalOpen}
+        onClose={() => setLinkedInModalOpen(false)}
+        jdText={rawJdText.trim() || formData.jobDescription.trim()}
+        jobTitle={formData.jobTitle}
+        location={formData.location}
+        experience={formData.experience}
+        skills={formData.skills}
+        contactPerson={formData.contactPerson}
+        salaryBudget={formData.salaryBudget}
+        shiftTiming={formData.shiftTiming}
+      />
     </form>
   );
 }

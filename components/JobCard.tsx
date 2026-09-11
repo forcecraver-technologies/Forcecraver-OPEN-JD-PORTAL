@@ -77,7 +77,7 @@ export default function JobCard({ job }: JobCardProps) {
         </div>
 
         {/* Job Title */}
-        <Link href={`/jobs/${job.id}`}>
+        <Link href={`/jobs/${job.id}`} target="_blank" rel="noopener noreferrer">
           <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
             {job.jobTitle}
           </h3>
@@ -170,6 +170,8 @@ export default function JobCard({ job }: JobCardProps) {
 
         <Link
           href={`/jobs/${job.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all"
         >
           <span>View JD</span>

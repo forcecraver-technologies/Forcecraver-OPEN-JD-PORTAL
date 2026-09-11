@@ -19,9 +19,11 @@ import {
   StickyNote,
   Clock,
   MapPin,
+  Share2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatShiftShort } from '@/lib/formatters';
+import LinkedInPostModal from '@/components/LinkedInPostModal';
 
 interface JobDirectoryTableProps {
   initialJobs?: Job[];
@@ -70,6 +72,9 @@ export default function JobDirectoryTable({
 
   // Notes Modal state
   const [selectedNotesJob, setSelectedNotesJob] = useState<Job | null>(null);
+
+  // LinkedIn Post Modal state
+  const [selectedLinkedInJob, setSelectedLinkedInJob] = useState<Job | null>(null);
 
   // Load companies if not provided
   useEffect(() => {
@@ -403,6 +408,8 @@ export default function JobDirectoryTable({
                     <td className="py-3 px-3">
                       <Link
                         href={`/jobs/${job.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="hover:text-blue-600 hover:underline text-[15px] font-bold text-slate-900 block leading-snug break-words"
                         title={job.jobTitle}
                       >
@@ -480,9 +487,20 @@ export default function JobDirectoryTable({
                       )}
                     </td>
                     <td className="py-3 px-3 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLinkedInJob(job)}
+                          title="Generate LinkedIn Post"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-[#0a66c2] hover:bg-blue-50 transition-colors cursor-pointer"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                        </button>
+
                         <Link
                           href={`/jobs/${job.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           title="View Job Details"
                           className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                         >
@@ -544,6 +562,22 @@ export default function JobDirectoryTable({
         company={selectedNotesJob?.companyName}
         notes={selectedNotesJob?.notes}
       />
+
+      {/* LinkedIn Post Modal */}
+      {selectedLinkedInJob && (
+        <LinkedInPostModal
+          isOpen={!!selectedLinkedInJob}
+          onClose={() => setSelectedLinkedInJob(null)}
+          jdText={selectedLinkedInJob.jobDescription}
+          jobTitle={selectedLinkedInJob.jobTitle}
+          location={selectedLinkedInJob.location || 'Remote'}
+          experience={selectedLinkedInJob.experience || ''}
+          skills={selectedLinkedInJob.skills || ''}
+          contactPerson={selectedLinkedInJob.contactPerson || ''}
+          salaryBudget={selectedLinkedInJob.salaryBudget || ''}
+          shiftTiming={selectedLinkedInJob.shiftTiming || ''}
+        />
+      )}
     </div>
   );
 }

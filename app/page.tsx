@@ -327,6 +327,8 @@ function HomeContent() {
                                 <td className="py-3 px-3">
                                   <Link
                                     href={`/jobs/${job.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="hover:text-blue-600 hover:underline text-[15px] font-bold text-slate-900 block leading-snug break-words"
                                     title={job.jobTitle}
                                   >
@@ -359,6 +361,8 @@ function HomeContent() {
                                   <div className="flex items-center justify-end gap-2">
                                     <Link
                                       href={`/jobs/${job.id}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       title="View Job Details"
                                       className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                                     >

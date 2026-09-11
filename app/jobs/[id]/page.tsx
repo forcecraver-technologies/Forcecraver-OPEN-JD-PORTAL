@@ -20,6 +20,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import LinkedInPostButton from '@/components/LinkedInPostButton';
 
 interface JobDetailsProps {
   params: Promise<{ id: string }>;
@@ -57,7 +58,7 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs"
@@ -66,7 +67,10 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
           Back to All Jobs
         </Link>
 
-        <span className="text-xs text-slate-400 font-mono">Job ID: {job.id}</span>
+        <div className="flex items-center gap-3">
+          <LinkedInPostButton job={job} />
+          <span className="text-xs text-slate-400 font-mono">Job ID: {job.id.slice(0, 8)}</span>
+        </div>
       </div>
 
       {/* Closed Job Alert Banner */}
@@ -245,9 +249,16 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
 
         {/* Complete Job Description */}
         <div className="pt-6 space-y-4">
-          <div className="flex items-center gap-2 text-slate-900">
-            <FileText className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-bold">Full Job Description</h2>
+          <div className="flex items-center justify-between flex-wrap gap-2 text-slate-900">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-bold">Full Job Description</h2>
+            </div>
+
+            <LinkedInPostButton
+              job={job}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 hover:bg-[#0a66c2] text-[#0a66c2] hover:text-white border border-blue-200 hover:border-[#0a66c2] rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+            />
           </div>
 
           <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line bg-slate-50/50 p-6 sm:p-8 rounded-2xl border border-slate-100 font-sans">
