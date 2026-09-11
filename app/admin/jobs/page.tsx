@@ -32,6 +32,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatShiftShort } from '@/lib/formatters';
 
 function ManageJobsContent() {
   const router = useRouter();
@@ -268,7 +269,7 @@ function ManageJobsContent() {
   const isIndeterminate = selectedIds.length > 0 && selectedIds.length < jobs.length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 py-6 space-y-6">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -548,7 +549,7 @@ function ManageJobsContent() {
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                 {/* Select All Checkbox */}
-                <th className="py-4 px-4 w-12 text-center">
+                <th className="py-3 px-2 w-10 text-center">
                   <button
                     type="button"
                     onClick={handleSelectAll}
@@ -557,25 +558,25 @@ function ManageJobsContent() {
                     title={isAllSelected ? 'Deselect All' : 'Select All'}
                   >
                     {isAllSelected ? (
-                      <CheckSquare className="w-5 h-5 text-blue-600" />
+                      <CheckSquare className="w-4 h-4 text-blue-600" />
                     ) : isIndeterminate ? (
-                      <div className="w-4 h-4 rounded bg-blue-100 border-2 border-blue-600 flex items-center justify-center">
+                      <div className="w-3.5 h-3.5 rounded bg-blue-100 border-2 border-blue-600 flex items-center justify-center">
                         <div className="w-2 h-0.5 bg-blue-600" />
                       </div>
                     ) : (
-                      <Square className="w-5 h-5 text-slate-300 hover:text-slate-500" />
+                      <Square className="w-4 h-4 text-slate-300 hover:text-slate-500" />
                     )}
                   </button>
                 </th>
-                <th className="py-4 px-4">Company</th>
-                <th className="py-4 px-6">Job Title</th>
-                <th className="py-4 px-6">Location</th>
-                <th className="py-4 px-6">Shift</th>
-                <th className="py-4 px-6">UAN</th>
-                <th className="py-4 px-6">Notes</th>
-                <th className="py-4 px-6">Posted Date</th>
-                <th className="py-4 px-6">Status & Quick Toggle</th>
-                <th className="py-4 px-6 text-right">Actions</th>
+                <th className="py-3 px-3 whitespace-nowrap">Company</th>
+                <th className="py-3 px-3">Job Title</th>
+                <th className="py-3 px-2 whitespace-nowrap">Location</th>
+                <th className="py-3 px-2 whitespace-nowrap text-center">Shift</th>
+                <th className="py-3 px-2 whitespace-nowrap text-center">UAN</th>
+                <th className="py-3 px-2 whitespace-nowrap text-center">Notes</th>
+                <th className="py-3 px-2 whitespace-nowrap text-center">Posted Date</th>
+                <th className="py-3 px-2.5 whitespace-nowrap text-center" title="Click to toggle status">Status</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -600,81 +601,96 @@ function ManageJobsContent() {
                       }`}
                     >
                       {/* Checkbox */}
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3 px-2 text-center">
                         <button
                           type="button"
                           onClick={() => handleToggleSelect(job.id)}
                           className="p-1 rounded text-slate-500 hover:text-blue-600 focus:outline-none"
                         >
                           {isSelected ? (
-                            <CheckSquare className="w-5 h-5 text-blue-600" />
+                            <CheckSquare className="w-4 h-4 text-blue-600" />
                           ) : (
-                            <Square className="w-5 h-5 text-slate-300 hover:text-slate-500" />
+                            <Square className="w-4 h-4 text-slate-300 hover:text-slate-500" />
                           )}
                         </button>
                       </td>
 
                       {/* Company */}
-                      <td className="py-4 px-4 font-semibold text-slate-900">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                      <td className="py-3 px-3 font-semibold text-slate-900 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{job.companyName}</span>
                         </div>
                       </td>
 
                       {/* Job Title */}
-                      <td className="py-4 px-6">
-                        <span className="font-bold text-slate-800 line-clamp-1">
+                      <td className="py-3 px-3">
+                        <span
+                          className="text-[15px] font-bold text-slate-900 block leading-snug break-words"
+                          title={job.jobTitle}
+                        >
                           {job.jobTitle}
                         </span>
                         {job.skills && (
-                          <span className="text-xs text-slate-400 line-clamp-1 mt-0.5">
+                          <span
+                            className="text-xs text-slate-400 truncate block max-w-[380px] mt-0.5"
+                            title={job.skills}
+                          >
                             {job.skills}
                           </span>
                         )}
                       </td>
 
                       {/* Location */}
-                      <td className="py-4 px-6 text-slate-600 text-xs sm:text-sm">
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span>{job.location || '—'}</span>
+                      <td className="py-3 px-2 text-slate-600 text-xs whitespace-nowrap">
+                        <div className="flex items-center gap-1 max-w-[110px]" title={job.location || '—'}>
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="truncate">{job.location || '—'}</span>
                         </div>
                       </td>
 
                       {/* Shift Timing */}
-                      <td className="py-4 px-6">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                          <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                          <span className="truncate max-w-[130px]">{job.shiftTiming || 'Day Shift (India)'}</span>
+                      <td className="py-3 px-2 whitespace-nowrap text-center">
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200"
+                          title={job.shiftTiming || 'Day Shift (India)'}
+                        >
+                          <Clock className="w-3 h-3 text-blue-600 shrink-0" />
+                          <span>{formatShiftShort(job.shiftTiming)}</span>
                         </span>
                       </td>
 
                       {/* UAN Requirement */}
-                      <td className="py-4 px-6">
+                      <td className="py-3 px-2 whitespace-nowrap text-center">
                         {job.uan === 'Required' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
-                            <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                            Required
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs whitespace-nowrap"
+                            title="UAN: Required"
+                          >
+                            <ShieldCheck className="w-3 h-3 text-amber-600 shrink-0" />
+                            <span>Req.</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                            Not Required
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap"
+                            title="UAN: Not Required"
+                          >
+                            <span>Not Req.</span>
                           </span>
                         )}
                       </td>
 
                       {/* Notes */}
-                      <td className="py-4 px-6">
+                      <td className="py-3 px-2 whitespace-nowrap text-center">
                         {job.notes && job.notes.trim() ? (
                           <button
                             type="button"
                             onClick={() => setSelectedNotesJob(job)}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-blue-50/80 text-blue-700 border border-blue-200/80 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-800 transition-all cursor-pointer shadow-2xs group"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
                             title="Click to view notes"
                           >
-                            <StickyNote className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
-                            <span>View Notes</span>
+                            <StickyNote className="w-3 h-3 text-blue-600" />
+                            <span>Notes</span>
                           </button>
                         ) : (
                           <span className="text-slate-300 text-xs font-mono">—</span>
@@ -682,20 +698,20 @@ function ManageJobsContent() {
                       </td>
 
                       {/* Posted Date */}
-                      <td className="py-4 px-6 text-slate-600 text-xs">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <td className="py-3 px-2 text-slate-600 text-xs whitespace-nowrap text-center">
+                        <div className="inline-flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
                           <span>{dateStr}</span>
                         </div>
                       </td>
 
                       {/* Status & Quick Toggle */}
-                      <td className="py-4 px-6">
+                      <td className="py-3 px-2.5 whitespace-nowrap text-center">
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(job)}
                           disabled={updatingStatusId === job.id}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold transition-all ${
                             isActive
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100'
                               : 'bg-slate-100 text-slate-600 border border-slate-300 hover:bg-slate-200'
@@ -704,12 +720,12 @@ function ManageJobsContent() {
                         >
                           {isActive ? (
                             <>
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                               <span>Active</span>
                             </>
                           ) : (
                             <>
-                              <XCircle className="w-3.5 h-3.5 text-slate-500" />
+                              <XCircle className="w-3 h-3 text-slate-500" />
                               <span>Closed</span>
                             </>
                           )}
@@ -717,32 +733,32 @@ function ManageJobsContent() {
                       </td>
 
                       {/* Action Buttons */}
-                      <td className="py-4 px-6 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-3 px-3 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1">
                           <Link
                             href={`/jobs/${job.id}`}
                             target="_blank"
                             title="View Public Page"
-                            className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                           >
-                            <ExternalLink className="w-4 h-4" />
+                            <ExternalLink className="w-3.5 h-3.5" />
                           </Link>
 
                           <Link
                             href={`/admin/jobs/${job.id}/edit`}
                             title="Edit JD"
-                            className="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3.5 h-3.5" />
                           </Link>
 
                           <button
                             type="button"
                             onClick={() => openDeleteModal(job)}
                             title="Delete JD"
-                            className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>

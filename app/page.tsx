@@ -22,6 +22,7 @@ import {
   Table2,
   FileSpreadsheet,
   ExternalLink,
+  MapPin,
 } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -301,12 +302,12 @@ function HomeContent() {
                       <table className="w-full text-left border-collapse text-sm">
                         <thead>
                           <tr className="bg-slate-50/80 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                            <th className="py-3.5 px-6">Company</th>
-                            <th className="py-3.5 px-6">Job Title</th>
-                            <th className="py-3.5 px-6">Location</th>
-                            <th className="py-3.5 px-6">Posted Date</th>
-                            <th className="py-3.5 px-6">Status</th>
-                            <th className="py-3.5 px-6 text-right">Actions</th>
+                            <th className="py-3 px-3 whitespace-nowrap">Company</th>
+                            <th className="py-3 px-3">Job Title</th>
+                            <th className="py-3 px-2 whitespace-nowrap">Location</th>
+                            <th className="py-3 px-2 whitespace-nowrap text-center">Posted Date</th>
+                            <th className="py-3 px-2.5 whitespace-nowrap text-center">Status</th>
+                            <th className="py-3 px-3 text-right whitespace-nowrap">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -317,39 +318,51 @@ function HomeContent() {
 
                             return (
                               <tr key={job.id} className="hover:bg-slate-50/70 transition-colors">
-                                <td className="py-4 px-6 font-semibold text-slate-900">
-                                  <div className="flex items-center gap-2">
-                                    <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                                <td className="py-3 px-3 font-semibold text-slate-900 whitespace-nowrap">
+                                  <div className="flex items-center gap-1.5">
+                                    <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                     <span className="truncate">{job.companyName}</span>
                                   </div>
                                 </td>
-                                <td className="py-4 px-6 font-medium text-slate-800">
+                                <td className="py-3 px-3">
                                   <Link
                                     href={`/jobs/${job.id}`}
-                                    className="hover:text-blue-600 hover:underline font-semibold text-slate-900 block"
+                                    className="hover:text-blue-600 hover:underline text-[15px] font-bold text-slate-900 block leading-snug break-words"
+                                    title={job.jobTitle}
                                   >
                                     {job.jobTitle}
                                   </Link>
+                                  {job.skills && (
+                                    <span
+                                      className="text-xs text-slate-400 truncate block max-w-[380px] mt-0.5"
+                                      title={job.skills}
+                                    >
+                                      {job.skills}
+                                    </span>
+                                  )}
                                 </td>
-                                <td className="py-4 px-6 text-slate-600">
-                                  {job.location || 'Remote'}
+                                <td className="py-3 px-2 text-slate-600 text-xs whitespace-nowrap">
+                                  <div className="flex items-center gap-1 max-w-[110px]" title={job.location || 'Remote'}>
+                                    <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                    <span className="truncate">{job.location || 'Remote'}</span>
+                                  </div>
                                 </td>
-                                <td className="py-4 px-6 text-slate-600 text-xs">
+                                <td className="py-3 px-2 text-slate-600 text-xs whitespace-nowrap text-center">
                                   {dateStr}
                                 </td>
-                                <td className="py-4 px-6">
+                                <td className="py-3 px-2.5 whitespace-nowrap text-center">
                                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                     Active
                                   </span>
                                 </td>
-                                <td className="py-4 px-6 text-right">
+                                <td className="py-3 px-3 text-right whitespace-nowrap">
                                   <div className="flex items-center justify-end gap-2">
                                     <Link
                                       href={`/jobs/${job.id}`}
                                       title="View Job Details"
                                       className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                                     >
-                                      <ExternalLink className="w-4 h-4" />
+                                      <ExternalLink className="w-3.5 h-3.5" />
                                     </Link>
                                   </div>
                                 </td>
