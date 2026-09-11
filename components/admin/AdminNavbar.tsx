@@ -40,27 +40,25 @@ export default function AdminNavbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-slate-900 text-white border-b border-slate-800 shadow-md">
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Admin Brand */}
           <div className="flex items-center gap-6">
             <Link href="/admin" className="flex items-center gap-2.5 group">
-              <div className="bg-white px-2 py-1 rounded-lg shadow-xs flex items-center">
-                <Image
-                  src="/logo.png"
-                  alt="Open JD Logo"
-                  width={110}
-                  height={28}
-                  className="h-7 w-auto object-contain"
-                  priority
-                />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Open JD Logo"
+                width={130}
+                height={36}
+                className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+                priority
+              />
               <div>
-                <span className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-                  Open JD <span className="text-blue-400">Admin</span>
+                <span className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
+                  Open JD <span className="text-blue-600 font-semibold">Admin</span>
                 </span>
-                <span className="block text-[10px] text-slate-400 font-medium tracking-wider uppercase">
+                <span className="block text-[10px] text-slate-500 font-medium tracking-wide uppercase">
                   Management Console
                 </span>
               </div>
@@ -79,13 +77,13 @@ export default function AdminNavbar() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
                       isActive
-                        ? 'text-white bg-slate-800 font-semibold border-b-2 border-blue-500'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                        ? 'text-blue-600 bg-blue-50/80 font-semibold shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                     {link.name}
                   </Link>
                 );
@@ -94,24 +92,24 @@ export default function AdminNavbar() {
           </div>
 
           {/* Desktop Right Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2.5">
             <Link
               href="/"
               target="_blank"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50 border border-slate-200/80 hover:border-blue-200 rounded-xl transition-all"
             >
-              <Globe className="w-3.5 h-3.5 text-blue-400" />
-              View Public Portal
+              <Globe className="w-3.5 h-3.5 text-slate-500" />
+              <span>View Public Portal</span>
             </Link>
 
             <button
               onClick={handleLogout}
               disabled={loggingOut}
               type="button"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 rounded-lg border border-rose-500/20 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
             >
               <LogOut className="w-3.5 h-3.5" />
-              {loggingOut ? 'Logging out...' : 'Logout'}
+              <span>{loggingOut ? 'Logging out...' : 'Logout'}</span>
             </button>
           </div>
 
@@ -119,7 +117,9 @@ export default function AdminNavbar() {
           <div className="flex md:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              type="button"
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none cursor-pointer"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -129,7 +129,7 @@ export default function AdminNavbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-900 px-4 pt-3 pb-5 space-y-2">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 shadow-lg">
           {adminLinks.map((link) => {
             const Icon = link.icon;
             const isActive =
@@ -142,33 +142,36 @@ export default function AdminNavbar() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium ${
-                  isActive ? 'text-white bg-slate-800 font-semibold' : 'text-slate-300 hover:bg-slate-800'
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-base font-medium transition-colors ${
+                  isActive
+                    ? 'text-blue-600 bg-blue-50 font-semibold'
+                    : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Icon className="w-5 h-5 text-slate-400" />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                 {link.name}
               </Link>
             );
           })}
 
-          <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
+          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
             <Link
               href="/"
               target="_blank"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-300 bg-slate-800 rounded-lg"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-slate-200 transition-colors"
             >
-              <Globe className="w-4 h-4" />
-              Public Portal
+              <Globe className="w-4 h-4 text-slate-500" />
+              View Public Portal
             </Link>
 
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-rose-300 bg-rose-900/40 rounded-lg"
+              disabled={loggingOut}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-xl transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              Logout
+              {loggingOut ? 'Logging out...' : 'Logout'}
             </button>
           </div>
         </div>
