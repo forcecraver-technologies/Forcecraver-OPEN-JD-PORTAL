@@ -43,17 +43,27 @@ const COMMON_TECH_SKILLS = [
   'CI/CD', 'Linux', 'Git',
 
   // Backend & Languages
-  'Java', 'Spring Boot', 'Microservices', 'Python', 'Django', 'FastAPI',
+  'Java', 'Spring Boot', 'Hibernate', 'JPA', 'Microservices', 'Python', 'Django', 'FastAPI',
   'Flask', 'Node.js', 'Express', 'TypeScript', 'JavaScript', 'C++', 'C#',
   '.NET', 'Dotnet', '.NET Core', 'PHP', 'Ruby', 'Golang', 'Go', 'Rust', 'Scala',
 
   // Frontend & Mobile
-  'React', 'Next.js', 'Angular', 'Vue.js', 'Tailwind CSS', 'HTML', 'CSS', 'Redux',
+  'React', 'Next.js', 'Angular', 'Vue.js', 'Vue', 'Tailwind CSS', 'HTML5', 'HTML', 'CSS3', 'CSS', 'Redux',
   'Flutter', 'React Native', 'Swift', 'Kotlin', 'iOS', 'Android',
 
-  // APIs & Architecture
-  'REST APIs', 'REST', 'SOAP APIs', 'SOAP', 'GraphQL', 'gRPC', 'API Integration',
+  // Database & Storage
+  'SQL', 'PostgreSQL', 'MySQL', 'NoSQL', 'MongoDB', 'Redis', 'Cassandra',
+  'DynamoDB', 'Elasticsearch', 'Database Schema Design', 'SQL Performance Tuning',
+
+  // APIs, Platforms & Architecture
+  'REST APIs', 'RESTful APIs', 'REST', 'SOAP APIs', 'SOAP', 'GraphQL', 'gRPC', 'API Integration',
+  'Oracle EPM', 'EPM', 'PCM', 'Profitability and Cost Management', 'Hyperion', 'Enterprise Performance Management',
+  'General Ledger', 'GL', 'Cost Allocation', 'ERP',
+  'Newgen', 'LMS', 'CMS', 'LOS', 'SRM', 'ECM', 'Payment Gateways', 'Credit Bureaus',
   'System Architecture', 'Security Architecture',
+
+  // Methodologies & Practices
+  'Agile', 'Scrum', 'Kanban',
 
   // Testing & QA
   'Selenium', 'Playwright', 'Jest', 'Cypress', 'Automation Testing',
@@ -92,12 +102,14 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
     }
   }
 
-  // Fallback: Check line 1 or line 2
+  // Fallback: Check top lines for role keywords
   if (!result.jobTitle && lines.length > 0) {
-    const candidateLine = lines[0];
     const titleKeywords = ['developer', 'engineer', 'architect', 'lead', 'manager', 'designer', 'analyst', 'specialist', 'consultant', 'qa', 'tester', 'administrator'];
-    if (titleKeywords.some(k => candidateLine.toLowerCase().includes(k)) && candidateLine.length < 100) {
-      result.jobTitle = cleanTitleString(candidateLine);
+    for (const line of lines.slice(0, 5)) {
+      if (titleKeywords.some(k => line.toLowerCase().includes(k)) && line.length < 100) {
+        result.jobTitle = cleanTitleString(line);
+        break;
+      }
     }
   }
 
@@ -115,7 +127,9 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
   if (!result.experience) {
     const standaloneExpMatch = trimmed.match(/(\b\d+\s*[-–to+]+\s*(?:\d+)?\s*(?:years?|yrs?|yr)\b(?:\s*(?:of)?\s*(?:hands-on\s*)?(?:exp|experience))?)/i);
     if (standaloneExpMatch && standaloneExpMatch[1]) {
-      result.experience = cleanString(standaloneExpMatch[1]);
+      let expText = cleanString(standaloneExpMatch[1]);
+      expText = expText.replace(/\s*(?:of\s*(?:hands-on\s*)?(?:exp(?:erience)?)?|exp(?:erience)?)$/i, '').trim();
+      result.experience = expText;
     }
   }
 
@@ -170,6 +184,8 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
   // -------------------------------------------------------------
   const companyPatterns = [
     /(?:Company(?:\s*Name)?|Client|Employer|Organization|Org)\s*[:\-–●•]\s*([^\n\r,;|●•]+)/i,
+    /^\*([A-Za-z0-9&]{3,30})\*\s*(?:Need\s+number|Need\s+profile|Requirement|Positions?)?/im,
+    /(?:work\s+(?:on|with)|working\s+with|client\s+is|for)\s+([A-Z][A-Za-z0-9]+)(?:’s|'s)?\s+(?:LMS|CMS|LOS|SRM|ECM|platforms?|products?|systems?)/i,
     /Copyright\s*(?:©|\(c\))\s*(?:\d{4})?\s*([A-Za-z0-9\s&.,]+?)(?:\.|\s+All Rights|\s*\||\n|$)/i,
     /([A-Z0-9\s&]{4,40}\s+(?:STAFFING|RECRUITMENT|TECHNOLOGIES|SOLUTIONS|SERVICES|LABS|TECH|PVT|LTD|CORP|GROUP|SYSTEMS|FIRM))/i,
     /(?:About|Join)\s+([A-Z][A-Za-z0-9\s&.,]+?)(?:\s+is|\s+are|\s*:|\n|$)/i,
@@ -178,10 +194,11 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
   for (const pattern of companyPatterns) {
     const match = trimmed.match(pattern);
     if (match && match[1]) {
-      let cleaned = match[1].replace(/^(a|an|the)\s+/i, '').trim();
+      let cleaned = match[1].replace(/^(?:a|an|the|and|or|with|for|in|on|of|to|from|by)\s+/i, '').trim();
       cleaned = cleaned.replace(/\s+(STAFFING|RECRUITMENT|FIRM|JAIPUR|INDIA|ALL RIGHTS RESERVED).*$/i, '').trim();
       cleaned = cleanString(cleaned);
-      if (cleaned.length > 2 && cleaned.length < 50 && !/^(job|experience|skills|location|confidential|position)$/i.test(cleaned)) {
+      const isTechJargon = /\b(?:risk|payment|operating|database|distributed|embedded|file|legacy|monitoring|records\s*management|web|restful|micro|third\s*party|software|cloud|data|enterprise|source|financial)\s+(?:systems|services|solutions)\b/i.test(cleaned);
+      if (!isTechJargon && cleaned.length > 2 && cleaned.length < 50 && !/^(job|experience|skills|location|confidential|position|our|the|this)$/i.test(cleaned)) {
         result.companyName = toTitleCase(cleaned);
         break;
       }
@@ -373,13 +390,22 @@ function cleanString(str: string): string {
 }
 
 function cleanTitleString(str: string): string {
-  return str
+  let cleaned = str
     .replace(/[*_~#`]/g, '')
     .replace(/^[:\-–●•\s]+/, '')
     .replace(/[\s–\-—|●•]+(?:Job\s*Description|JD|Job\s*Opening|Opening|Requirements).*$/i, '')
     .replace(/[:\-–●•\s]+$/, '')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // Strip trailing client name (e.g. "Oracle EPM Consultant - Relanto" -> "Oracle EPM Consultant")
+  cleaned = cleaned.replace(/\s*[-–—|]\s*([A-Za-z0-9&.\s]{2,30})$/, (match, suffix) => {
+    const sLower = suffix.trim().toLowerCase();
+    const isRoleQualifier = ['developer', 'engineer', 'architect', 'lead', 'manager', 'consultant', 'specialist', 'senior', 'junior', 'analyst', 'administrator'].some(k => sLower.includes(k));
+    return isRoleQualifier ? match : '';
+  }).trim();
+
+  return cleaned;
 }
 
 function toTitleCase(str: string): string {

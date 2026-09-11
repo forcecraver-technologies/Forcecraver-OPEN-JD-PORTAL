@@ -30,6 +30,7 @@ interface LinkedInPostModalProps {
   onClose: () => void;
   jdText?: string;
   jobTitle?: string;
+  companyName?: string;
   location?: string;
   experience?: string;
   skills?: string[] | string;
@@ -43,6 +44,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
   onClose,
   jdText = '',
   jobTitle = '',
+  companyName = '',
   location = '',
   experience = '',
   skills = '',
@@ -73,6 +75,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
     if (isOpen) {
       const generated = generateLinkedInPost(jdText, {
         title: jobTitle,
+        companyName: companyName,
         location: customLocation,
         experience: experience,
         skills: skills,
@@ -90,6 +93,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
     isOpen,
     jdText,
     jobTitle,
+    companyName,
     customLocation,
     experience,
     skills,
@@ -127,7 +131,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
 
   if (!isOpen) return null;
 
-  const detectedRole = jobTitle ? cleanJobTitle(jobTitle) : extractRoleFromText(jdText);
+  const detectedRole = cleanJobTitle(jobTitle || extractRoleFromText(jdText), companyName);
   const detectedExp = experience || extractExperienceFromText(jdText);
 
   const handleCopy = async () => {
@@ -161,6 +165,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
     setTemplateStyle('engaging');
     const regenerated = generateLinkedInPost(jdText, {
       title: jobTitle,
+      companyName: companyName,
       location: location || 'Remote (India / Global)',
       experience: experience,
       skills: skills,

@@ -570,6 +570,7 @@ export default function JobDirectoryTable({
           onClose={() => setSelectedLinkedInJob(null)}
           jdText={selectedLinkedInJob.jobDescription}
           jobTitle={selectedLinkedInJob.jobTitle}
+          companyName={selectedLinkedInJob.companyName}
           location={selectedLinkedInJob.location || 'Remote'}
           experience={selectedLinkedInJob.experience || ''}
           skills={selectedLinkedInJob.skills || ''}

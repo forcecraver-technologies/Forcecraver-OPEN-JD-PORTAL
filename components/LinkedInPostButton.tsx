@@ -33,6 +33,7 @@ export default function LinkedInPostButton({ job, className = '' }: LinkedInPost
         onClose={() => setIsOpen(false)}
         jdText={job.jobDescription}
         jobTitle={job.jobTitle}
+        companyName={job.companyName || ''}
         location={job.location || 'Remote'}
         experience={job.experience || ''}
         skills={job.skills || ''}

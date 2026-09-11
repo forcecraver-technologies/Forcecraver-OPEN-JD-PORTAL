@@ -689,6 +689,7 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
         onClose={() => setLinkedInModalOpen(false)}
         jdText={rawJdText.trim() || formData.jobDescription.trim()}
         jobTitle={formData.jobTitle}
+        companyName={formData.companyName}
         location={formData.location}
         experience={formData.experience}
         skills={formData.skills}
