@@ -324,16 +324,16 @@ Requirements:
       location: 'Ahmedabad',
       salaryBudget: '9 - 14 LPA',
       jobDescription: `About the Role:
-We are looking for a motivated Next.js Developer to build blazing-fast web applications at Nexlify Solutions.
+      We are looking for a motivated Next.js Developer to build blazing-fast web applications at Nexlify Solutions.
 
-Key Responsibilities:
-• Build modern web applications with Next.js App Router, SSR, and Tailwind CSS.
-• Create REST APIs in Node.js and integrate PostgreSQL.
+      Key Responsibilities:
+      • Build modern web applications with Next.js App Router, SSR, and Tailwind CSS.
+      • Create REST APIs in Node.js and integrate PostgreSQL.
 
-Requirements:
-• 2+ years of React and Next.js experience.
-• Strong CSS/Tailwind skills and understanding of full-stack TypeScript.`,
-      postedDate: today,
+      Requirements:
+      • 2+ years of React and Next.js experience.
+      • Strong CSS/Tailwind skills and understanding of full-stack TypeScript.`,
+            postedDate: today,
       status: JobStatus.ACTIVE,
     },
     {

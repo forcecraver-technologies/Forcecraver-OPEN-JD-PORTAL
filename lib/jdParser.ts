@@ -320,14 +320,36 @@ export function parseRawJobDescription(rawText: string): ParsedJDFields {
   }
 
   // -------------------------------------------------------------
-  // 9. EXTRACT NOTES / SPECIAL INSTRUCTIONS
+  // 9. EXTRACT NOTES / SPECIAL INSTRUCTIONS (Strict Recruiter Notes Only)
   // -------------------------------------------------------------
-  const notesPattern = /(?:[*_~#`]*(?:Important\s*)?Note[s]?|Special\s*Instruction[s]?|Remarks?)[*_~#`]*\s*[:\-–●•]\s*([^\n\r]+(?:\r?\n(?![A-Za-z\s]+:)[^\n\r]+)*)/i;
+  const notesPattern = /(?:^|\n)[*_~#`\s]*(?:(?:Important\s+|Recruiter\s+|Internal\s+)?Note[s]?|Special\s*Instruction[s]?|Remarks?)[*_~#`\s]*[:\-–●•]\s*([^\n\r]+(?:\r?\n[^\n\r]+)?)/i;
   const notesMatch = trimmed.match(notesPattern);
   if (notesMatch && notesMatch[1]) {
-    const cleanedNotes = notesMatch[1].trim();
-    if (cleanedNotes.length > 3) {
-      result.notes = cleanedNotes;
+    let candidate = notesMatch[1].trim();
+
+    // Notes must NEVER capture JD content, bullet points, or section headers
+    const hasBullets = /^[•*–—\-●▪►✔️▪️\t ]+|\n\s*[•*–—\-●▪►✔️▪️\t ]+/.test(candidate);
+    const hasJdHeaders = /(?:Responsibilities|Requirements|Technical\s*Skills|Key\s*Skills|Qualifications|About\s*the\s*Role|Overview|What\s*you('ll)?\s*do|Mandatory\s*Skills)/i.test(candidate);
+
+    if (!hasBullets && !hasJdHeaders) {
+      // If multi-line or long, take at most 1 short line
+      const lines = candidate.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length > 2 || candidate.length > 200) {
+        if (lines.length > 0 && lines[0].length <= 150 && !/^[•*–—\-●▪►✔️▪️\t ]+/.test(lines[0])) {
+          candidate = lines[0];
+        } else {
+          candidate = '';
+        }
+      }
+
+      // Filter out technical requirements that happen to use the word "Note:"
+      const isTechNote = /(?:applied\s+the\s+above\s+technologies|above\s+technologies|production\s+projects|demonstrate\s+their\s+implementation|hands-on\s+experience\s+in\s+(?:Java|Python|React|Angular|\.NET|AWS|Azure)|work\s+on\s+(?:Newgen|LMS|CMS|LOS|platforms))/i.test(candidate);
+      const isPureTechList = /\b(?:Java|Python|React|Angular|Vue|Node|PostgreSQL|MySQL|Docker|Kubernetes|TypeScript|FastAPI|Spring\s*Boot|Microservices)\b/i.test(candidate) &&
+        !/(?:immediate|joiner|bench|c2c|w2|rate|budget|client|spoc|contact|profile|screening|interview|passport|relocation)/i.test(candidate);
+
+      if (!isTechNote && !isPureTechList && candidate.length >= 4 && !/^(?:n\/?a|none|nil|not\s*applicable)$/i.test(candidate)) {
+        result.notes = cleanString(candidate);
+      }
     }
   }
 

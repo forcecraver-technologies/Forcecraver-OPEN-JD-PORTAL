@@ -1,5 +1,28 @@
 export type JobStatus = 'ACTIVE' | 'CLOSED';
 
+export interface ScheduledCandidate {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  experience?: string | null;
+  location?: string | null;
+  currentRole?: string | null;
+}
+
+export interface ScheduledInterviewSummary {
+  id: string;
+  referenceCode: string;
+  status: string;
+  interviewDate: string | Date;
+  startTime: string;
+  endTime: string;
+  roundName: string;
+  mode: string;
+  meetingLink?: string | null;
+  candidate: ScheduledCandidate;
+}
+
 export interface Job {
   id: string;
   companyName: string;
@@ -17,6 +40,7 @@ export interface Job {
   shiftTiming?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
+  interviews?: ScheduledInterviewSummary[];
 }
 
 export interface JobFilterParams {

@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   StickyNote,
   Clock,
+  ExternalLink,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import LinkedInPostButton from '@/components/LinkedInPostButton';
@@ -243,6 +244,90 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
             </div>
             <div className="bg-slate-50/70 border border-slate-200/90 rounded-2xl p-5 sm:p-6 text-slate-800 text-sm leading-relaxed whitespace-pre-wrap font-sans selection:bg-blue-100 shadow-2xs">
               {job.notes}
+            </div>
+          </div>
+        )}
+
+        {/* Scheduled Interviews & Candidates Section */}
+        {job.interviews && job.interviews.length > 0 && (
+          <div className="py-6 border-b border-slate-100 space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2.5 text-slate-900">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-200 shadow-2xs">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <span>Scheduled Candidate Interviews</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      {job.interviews.length} Scheduled
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Active interview appointments scheduled for this role. Click any candidate to view their interview slot.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {job.interviews.map((intv) => {
+                const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+                const slotUrl = `${interviewPortalUrl}/slots/${encodeURIComponent(intv.referenceCode)}`;
+                const intvDate = new Date(intv.interviewDate);
+                const formattedDate = !isNaN(intvDate.getTime()) ? format(intvDate, 'EEEE, MMMM dd, yyyy') : '';
+
+                return (
+                  <div
+                    key={intv.id}
+                    className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/40 border border-emerald-200/90 hover:border-emerald-400 transition-all flex flex-col justify-between gap-4 shadow-2xs group"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="font-bold text-slate-900 text-base flex items-center gap-1.5 group-hover:text-emerald-700 transition-colors">
+                            <UserCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                            {intv.candidate?.name || 'Candidate'}
+                          </h4>
+                          <p className="text-xs text-slate-500 font-mono mt-0.5">
+                            Ref: {intv.referenceCode}
+                          </p>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-wide">
+                          {intv.status}
+                        </span>
+                      </div>
+
+                      <div className="mt-3.5 space-y-1.5 text-xs text-slate-600">
+                        {formattedDate && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="font-medium">{formattedDate}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="font-semibold text-slate-800">{intv.startTime} – {intv.endTime}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>Status: <strong className="text-slate-800">{intv.status}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a
+                      href={slotUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-2xs hover:shadow-xs group/btn"
+                    >
+                      <span>Open Candidate Slot in Interview Portal</span>
+                      <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                    </a>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

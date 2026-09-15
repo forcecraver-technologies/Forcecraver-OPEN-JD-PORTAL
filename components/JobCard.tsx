@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Job } from '@/types/job';
 import NotesModal from '@/components/NotesModal';
-import { Building2, MapPin, Briefcase, IndianRupee, Calendar, ArrowRight, CheckCircle2, XCircle, UserCheck, ShieldCheck, StickyNote, Clock } from 'lucide-react';
+import { Building2, MapPin, Briefcase, IndianRupee, Calendar, ArrowRight, CheckCircle2, XCircle, UserCheck, ShieldCheck, StickyNote, Clock, ExternalLink } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 
 interface JobCardProps {
@@ -51,6 +51,13 @@ export default function JobCard({ job }: JobCardProps) {
           </Link>
 
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            {job.interviews && job.interviews.length > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-2xs animate-pulse">
+                <span>🎯</span>
+                <span>{job.interviews.length} Scheduled</span>
+              </span>
+            )}
+
             {isUanRequired ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
                 <ShieldCheck className="w-3 h-3 text-amber-600" />
@@ -123,6 +130,59 @@ export default function JobCard({ job }: JobCardProps) {
             <UserCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
             <span className="text-[10px] uppercase font-bold text-slate-400">Handled by:</span>
             <span className="font-semibold text-slate-800">{job.contactPerson}</span>
+          </div>
+        )}
+
+        {/* Scheduled Interview Section */}
+        {job.interviews && job.interviews.length > 0 && (
+          <div className="mt-3.5 p-3 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/90 space-y-2 shadow-2xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-700 text-white shadow-2xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                </span>
+                Interview Scheduled ({job.interviews.length})
+              </span>
+              <span className="text-[11px] font-semibold text-emerald-800">
+                {job.interviews[0].status || 'Scheduled'}
+              </span>
+            </div>
+
+            <div className="space-y-1.5 pt-0.5">
+              {job.interviews.map((intv) => {
+                const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+                const slotUrl = `${interviewPortalUrl}/slots/${encodeURIComponent(intv.referenceCode)}`;
+                const intvDate = new Date(intv.interviewDate);
+                const formattedIntvDate = !isNaN(intvDate.getTime()) ? format(intvDate, 'MMM d') : '';
+
+                return (
+                  <a
+                    key={intv.id}
+                    href={slotUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-white border border-emerald-200 hover:border-emerald-400 text-xs text-slate-800 hover:text-emerald-700 transition-all group/cand shadow-2xs"
+                    title={`Click to open ${intv.candidate?.name}'s interview slot in Interview Portal`}
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="font-bold truncate text-slate-900 group-hover/cand:text-emerald-700">
+                        {intv.candidate?.name || 'Candidate'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                        ({intv.referenceCode})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0 text-emerald-700 font-medium text-[11px]">
+                      {formattedIntvDate && <span>{formattedIntvDate} • {intv.startTime}</span>}
+                      <ExternalLink className="w-3 h-3 text-emerald-600 group-hover/cand:translate-x-0.5 group-hover/cand:-translate-y-0.5 transition-transform" />
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
           </div>
         )}
 

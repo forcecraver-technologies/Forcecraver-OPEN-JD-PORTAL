@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Briefcase, Building2, ShieldCheck, Menu, X, Sparkles, LayoutDashboard } from 'lucide-react';
+import { Briefcase, Building2, ShieldCheck, Menu, X, Sparkles, LayoutDashboard, CalendarClock } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -15,10 +15,19 @@ export default function Navbar() {
     return null;
   }
 
+  const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+
   const navLinks = [
-    { name: 'Browse Jobs', href: '/', icon: Briefcase },
-    { name: 'JD Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Companies', href: '/companies', icon: Building2 },
+    { name: 'Browse Jobs', href: '/', icon: Briefcase, external: false },
+    { name: 'JD Dashboard', href: '/dashboard', icon: LayoutDashboard, external: false },
+    { name: 'Companies', href: '/companies', icon: Building2, external: false },
+    {
+      name: 'Interviews',
+      href: interviewPortalUrl,
+      icon: CalendarClock,
+      external: true,
+      badge: 'interview.forcecraver.com',
+    },
   ];
 
   return (
@@ -50,9 +59,30 @@ export default function Navbar() {
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive =
-                link.href === '/'
-                  ? pathname === '/'
-                  : pathname.startsWith(link.href);
+                !link.external && (
+                  link.href === '/'
+                    ? pathname === '/'
+                    : pathname.startsWith(link.href)
+                );
+
+              if (link.external) {
+                return (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 transition-all group"
+                    title="interview.forcecraver.com"
+                  >
+                    <Icon className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                    <span>{link.name}</span>
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 hidden lg:inline-block">
+                      Live
+                    </span>
+                  </a>
+                );
+              }
 
               return (
                 <Link
@@ -102,9 +132,32 @@ export default function Navbar() {
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive =
-              link.href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(link.href);
+              !link.external && (
+                link.href === '/'
+                  ? pathname === '/'
+                  : pathname.startsWith(link.href)
+              );
+
+            if (link.external) {
+              return (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5 text-blue-600" />
+                    <span>{link.name}</span>
+                  </div>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    Live Portal
+                  </span>
+                </a>
+              );
+            }
 
             return (
               <Link

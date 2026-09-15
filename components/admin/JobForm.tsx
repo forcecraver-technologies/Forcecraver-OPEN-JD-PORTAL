@@ -141,6 +141,8 @@ export default function JobForm({ initialJob, mode }: JobFormProps) {
       if (parsed.notes) {
         next.notes = parsed.notes;
         extractedCount++;
+      } else if (mode === 'create') {
+        next.notes = '';
       }
       if (parsed.shiftTiming) {
         next.shiftTiming = parsed.shiftTiming;

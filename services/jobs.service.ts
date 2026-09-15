@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
-import { JobFilterParams, PaginatedJobsResponse, CompanyWithCount, AdminStats, CompanyAdminStats } from '@/types/job';
+import { Job, JobFilterParams, PaginatedJobsResponse, CompanyWithCount, AdminStats, CompanyAdminStats } from '@/types/job';
 import { buildJobWhereClause } from '@/lib/searchRules';
-import { JobStatus, Job } from '@prisma/client';
+import { JobStatus } from '@prisma/client';
 import { JobInput } from '@/lib/validations';
 
 interface CacheEntry<T> {
@@ -51,6 +51,37 @@ export class JobsService {
           shiftTiming: true,
           createdAt: true,
           updatedAt: true,
+          interviews: {
+            where: {
+              status: { not: 'CANCELLED' },
+            },
+            select: {
+              id: true,
+              referenceCode: true,
+              status: true,
+              interviewDate: true,
+              startTime: true,
+              endTime: true,
+              roundName: true,
+              mode: true,
+              meetingLink: true,
+              candidate: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  phone: true,
+                  experience: true,
+                  location: true,
+                  currentRole: true,
+                },
+              },
+            },
+            orderBy: [
+              { interviewDate: 'asc' },
+              { startTime: 'asc' },
+            ],
+          },
         },
         orderBy: [
           { postedDate: 'desc' },
@@ -64,7 +95,7 @@ export class JobsService {
     const totalPages = Math.ceil(total / limit) || 1;
 
     return {
-      jobs,
+      jobs: jobs as unknown as Job[],
       pagination: {
         total,
         page,
@@ -80,9 +111,25 @@ export class JobsService {
    * Fetch a single job by its ID
    */
   static async getJobById(id: string): Promise<Job | null> {
-    return await prisma.job.findUnique({
+    const job = await prisma.job.findUnique({
       where: { id },
+      include: {
+        interviews: {
+          where: {
+            status: { not: 'CANCELLED' },
+          },
+          include: {
+            candidate: true,
+          },
+          orderBy: [
+            { interviewDate: 'asc' },
+            { startTime: 'asc' },
+          ],
+        },
+      },
     });
+
+    return job as unknown as Job | null;
   }
 
   /**
@@ -315,7 +362,7 @@ export class JobsService {
    * Get active jobs for a specific company
    */
   static async getJobsByCompany(companyName: string, includeClosed = false): Promise<Job[]> {
-    return await prisma.job.findMany({
+    const jobs = await prisma.job.findMany({
       where: {
         companyName: {
           equals: companyName,
@@ -323,11 +370,27 @@ export class JobsService {
         },
         ...(includeClosed ? {} : { status: JobStatus.ACTIVE }),
       },
+      include: {
+        interviews: {
+          where: {
+            status: { not: 'CANCELLED' },
+          },
+          include: {
+            candidate: true,
+          },
+          orderBy: [
+            { interviewDate: 'asc' },
+            { startTime: 'asc' },
+          ],
+        },
+      },
       orderBy: [
         { postedDate: 'desc' },
         { createdAt: 'desc' },
       ],
     });
+
+    return jobs as unknown as Job[];
   }
 
   /**

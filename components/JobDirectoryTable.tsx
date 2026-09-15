@@ -423,6 +423,30 @@ export default function JobDirectoryTable({
                           {job.skills}
                         </span>
                       )}
+                      {job.interviews && job.interviews.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          {job.interviews.map((intv) => {
+                            const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+                            const slotUrl = `${interviewPortalUrl}/slots/${encodeURIComponent(intv.referenceCode)}`;
+                            return (
+                              <a
+                                key={intv.id}
+                                href={slotUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 hover:border-emerald-400 transition-colors shadow-2xs group/slot"
+                                title={`Interview Scheduled: ${intv.candidate?.name} (${intv.startTime}). Click to open slot in Interview Portal.`}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse shrink-0"></span>
+                                <span>Interview: {intv.candidate?.name || 'Candidate'}</span>
+                                <span className="text-[10px] text-emerald-600 font-mono">({intv.startTime})</span>
+                                <ExternalLink className="w-3 h-3 text-emerald-600 group-hover/slot:translate-x-0.5 transition-transform" />
+                              </a>
+                            );
+                          })}
+                        </div>
+                      )}
                     </td>
                     <td className="py-3 px-2 text-slate-600 text-xs whitespace-nowrap">
                       <div className="flex items-center gap-1 max-w-[110px]" title={job.location || 'Remote'}>
