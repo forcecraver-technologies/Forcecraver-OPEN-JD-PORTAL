@@ -79,24 +79,7 @@ function LoginFormContent() {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Admin Email <span className="text-slate-400 font-normal normal-case">(Optional)</span>
-          </label>
-          <div className="relative">
-            <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your admin email"
-              autoComplete="email"
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Password
+            Admin Password
           </label>
           <div className="relative">
             <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
@@ -105,7 +88,7 @@ function LoginFormContent() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Enter your admin password"
               autoComplete="current-password"
               className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
             />
