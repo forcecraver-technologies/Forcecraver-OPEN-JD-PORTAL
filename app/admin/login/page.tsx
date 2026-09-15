@@ -79,13 +79,12 @@ function LoginFormContent() {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Admin Email
+            Admin Email <span className="text-slate-400 font-normal normal-case">(Optional)</span>
           </label>
           <div className="relative">
             <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
             <input
               type="email"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your admin email"

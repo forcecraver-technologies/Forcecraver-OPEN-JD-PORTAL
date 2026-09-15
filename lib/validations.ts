@@ -60,9 +60,7 @@ export function validateJobInput(data: Partial<JobInput>): { isValid: boolean; e
 export function validateLoginInput(data: { email?: string; password?: string }): { isValid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
 
-  if (!data.email || !data.email.trim()) {
-    errors.email = 'Email address is required';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+  if (data.email && data.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
     errors.email = 'Please enter a valid email address';
   }
 

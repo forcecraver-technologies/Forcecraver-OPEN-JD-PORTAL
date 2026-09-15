@@ -14,13 +14,15 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = body;
 
-    const admin = await prisma.admin.findUnique({
-      where: { email: email.trim().toLowerCase() },
-    });
+    const admin = email && email.trim()
+      ? await prisma.admin.findUnique({
+          where: { email: email.trim().toLowerCase() },
+        })
+      : await prisma.admin.findFirst();
 
     if (!admin) {
       return NextResponse.json(
-        { error: 'Invalid email or password.' },
+        { error: 'Invalid admin credentials.' },
         { status: 401 }
       );
     }
