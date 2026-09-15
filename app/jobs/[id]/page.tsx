@@ -272,7 +272,7 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {job.interviews.map((intv) => {
-                const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+                const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'https://interview.forcecraver.com';
                 const slotUrl = `${interviewPortalUrl}/slots/${encodeURIComponent(intv.referenceCode)}`;
                 const intvDate = new Date(intv.interviewDate);
                 const formattedDate = !isNaN(intvDate.getTime()) ? format(intvDate, 'EEEE, MMMM dd, yyyy') : '';

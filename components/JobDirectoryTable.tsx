@@ -426,7 +426,7 @@ export default function JobDirectoryTable({
                       {job.interviews && job.interviews.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                           {job.interviews.map((intv) => {
-                            const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+                            const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'https://interview.forcecraver.com';
                             const slotUrl = `${interviewPortalUrl}/slots/${encodeURIComponent(intv.referenceCode)}`;
                             return (
                               <a

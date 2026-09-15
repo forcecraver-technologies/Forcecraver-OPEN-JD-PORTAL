@@ -15,7 +15,7 @@ export default function Navbar() {
     return null;
   }
 
-  const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+  const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'https://interview.forcecraver.com';
 
   const navLinks = [
     { name: 'Browse Jobs', href: '/', icon: Briefcase, external: false },

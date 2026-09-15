@@ -151,7 +151,7 @@ export default function JobCard({ job }: JobCardProps) {
 
             <div className="space-y-1.5 pt-0.5">
               {job.interviews.map((intv) => {
-                const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'http://localhost:3001';
+                const interviewPortalUrl = process.env.NEXT_PUBLIC_INTERVIEW_PORTAL_URL || 'https://interview.forcecraver.com';
                 const slotUrl = `${interviewPortalUrl}/slots/${encodeURIComponent(intv.referenceCode)}`;
                 const intvDate = new Date(intv.interviewDate);
                 const formattedIntvDate = !isNaN(intvDate.getTime()) ? format(intvDate, 'MMM d') : '';
