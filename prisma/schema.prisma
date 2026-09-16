@@ -76,8 +76,8 @@ model Admin {
 
 model Candidate {
   id           String      @id @default(uuid())
-  name         String
-  email        String
+  name         String?
+  email        String?
   phone        String?
   experience   String?
   location     String?     @map("location")

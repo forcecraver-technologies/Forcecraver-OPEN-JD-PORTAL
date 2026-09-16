@@ -2,8 +2,8 @@ export type JobStatus = 'ACTIVE' | 'CLOSED';
 
 export interface ScheduledCandidate {
   id: string;
-  name: string;
-  email: string;
+  name?: string | null;
+  email?: string | null;
   phone?: string | null;
   experience?: string | null;
   location?: string | null;

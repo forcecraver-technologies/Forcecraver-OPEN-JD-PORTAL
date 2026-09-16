@@ -59,16 +59,23 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
   const [recruiterPhone, setRecruiterPhone] = useState('[enter your phone]');
   const [noticePeriod, setNoticePeriod] = useState('Immediate to 15 Days Preferred');
   const [customLocation, setCustomLocation] = useState(location || 'Remote (India / Global)');
+  const [customShiftTiming, setCustomShiftTiming] = useState(shiftTiming || '');
   const [postContent, setPostContent] = useState('');
   const [copied, setCopied] = useState(false);
   const [showCustomizers, setShowCustomizers] = useState(false);
 
-  // Sync initial location when prop arrives
+  // Sync initial location & shift when props arrive
   useEffect(() => {
     if (location && (!customLocation || customLocation === 'Remote (India / Global)')) {
       setCustomLocation(location);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (shiftTiming && !customShiftTiming) {
+      setCustomShiftTiming(shiftTiming);
+    }
+  }, [shiftTiming]);
 
   // Generate post when inputs or template style changes
   useEffect(() => {
@@ -80,7 +87,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
         experience: experience,
         skills: skills,
         salary: salaryBudget,
-        shiftTiming: shiftTiming || 'Day Shift (India)',
+        shiftTiming: customShiftTiming || (shiftTiming ? shiftTiming : undefined),
         noticePeriod: noticePeriod,
         recruiterName: recruiterName,
         recruiterEmail: recruiterEmail,
@@ -95,6 +102,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
     jobTitle,
     companyName,
     customLocation,
+    customShiftTiming,
     experience,
     skills,
     salaryBudget,
@@ -162,6 +170,8 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
     setRecruiterEmail('[enter your email]');
     setRecruiterPhone('[enter your phone]');
     setNoticePeriod('Immediate to 15 Days Preferred');
+    setCustomLocation(location || 'Remote (India / Global)');
+    setCustomShiftTiming(shiftTiming || '');
     setTemplateStyle('engaging');
     const regenerated = generateLinkedInPost(jdText, {
       title: jobTitle,
@@ -170,7 +180,7 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
       experience: experience,
       skills: skills,
       salary: salaryBudget,
-      shiftTiming: shiftTiming || 'Day Shift (India)',
+      shiftTiming: shiftTiming || undefined,
       noticePeriod: 'Immediate to 15 Days Preferred',
       recruiterName: '[enter your name]',
       recruiterEmail: '[enter your email]',
@@ -373,6 +383,34 @@ export const LinkedInPostModal: React.FC<LinkedInPostModalProps> = ({
                     value={noticePeriod}
                     onChange={(e) => setNoticePeriod(e.target.value)}
                     placeholder="Immediate to 15 Days Preferred"
+                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-[#0a66c2] focus:ring-2 focus:ring-blue-100 text-slate-900"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-blue-600" />
+                    <span>Location</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={customLocation}
+                    onChange={(e) => setCustomLocation(e.target.value)}
+                    placeholder="Remote / Hybrid / City"
+                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-[#0a66c2] focus:ring-2 focus:ring-blue-100 text-slate-900"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-blue-600" />
+                    <span>Shift Timing & Overlap</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={customShiftTiming}
+                    onChange={(e) => setCustomShiftTiming(e.target.value)}
+                    placeholder="11:00 AM - 8:00 PM IST (4-hr US overlap)"
                     className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:border-[#0a66c2] focus:ring-2 focus:ring-blue-100 text-slate-900"
                   />
                 </div>
