@@ -38,8 +38,8 @@ function HomeContent() {
   const [totalJobs, setTotalJobs] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  // View mode toggle: 'grid' (Cards) or 'table' (Dashboard Directory)
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
+  // View mode toggle: 'grid' (Cards) or 'table' (Dashboard Directory) - Defaults to 'grid' (Cards)
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [exportModalOpen, setExportModalOpen] = useState(false);
 
   // Parse filters from URL
