@@ -163,21 +163,26 @@ export default function JobCard({ job }: JobCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-white border border-emerald-200 hover:border-emerald-400 text-xs text-slate-800 hover:text-emerald-700 transition-all group/cand shadow-2xs"
-                    title={`Click to open ${intv.candidate?.name}'s interview slot in Interview Portal`}
+                    className="block p-2 rounded-lg bg-white border border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-xs text-slate-800 transition-all group/cand shadow-2xs"
+                    title={`Click to open ${intv.candidate?.name || intv.referenceCode}'s interview slot in Interview Portal`}
                   >
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span className="font-bold truncate text-slate-900 group-hover/cand:text-emerald-700">
-                        {intv.candidate?.name || 'Candidate'}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
-                        ({intv.referenceCode})
-                      </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="font-bold text-xs truncate text-slate-900 group-hover/cand:text-emerald-700">
+                          {intv.candidate?.name || 'Candidate'}
+                        </span>
+                      </div>
+                      <ExternalLink className="w-3.5 h-3.5 text-emerald-600 shrink-0 group-hover/cand:translate-x-0.5 group-hover/cand:-translate-y-0.5 transition-transform" />
                     </div>
-                    <div className="flex items-center gap-1 shrink-0 text-emerald-700 font-medium text-[11px]">
-                      {formattedIntvDate && <span>{formattedIntvDate} • {intv.startTime}</span>}
-                      <ExternalLink className="w-3 h-3 text-emerald-600 group-hover/cand:translate-x-0.5 group-hover/cand:-translate-y-0.5 transition-transform" />
+
+                    <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-emerald-700 pl-5">
+                      <span>{formattedIntvDate ? `${formattedIntvDate} • ${intv.startTime}` : intv.startTime}</span>
+                      {intv.roundName && (
+                        <span className="text-[10px] px-1.5 py-0.2 bg-emerald-100/80 rounded text-emerald-800 font-semibold">
+                          {intv.roundName}
+                        </span>
+                      )}
                     </div>
                   </a>
                 );
