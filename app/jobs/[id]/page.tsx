@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import LinkedInPostButton from '@/components/LinkedInPostButton';
+import CopyJDButton from '@/components/CopyJDButton';
 
 interface JobDetailsProps {
   params: Promise<{ id: string }>;
@@ -68,7 +69,11 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
           Back to All Jobs
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <CopyJDButton
+            text={job.jobDescription}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+          />
           <LinkedInPostButton job={job} />
           <span className="text-xs text-slate-400 font-mono">Job ID: {job.id.slice(0, 8)}</span>
         </div>
@@ -340,10 +345,17 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
               <h2 className="text-xl font-bold">Full Job Description</h2>
             </div>
 
-            <LinkedInPostButton
-              job={job}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 hover:bg-[#0a66c2] text-[#0a66c2] hover:text-white border border-blue-200 hover:border-[#0a66c2] rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
-            />
+            <div className="flex items-center gap-2">
+              <CopyJDButton
+                text={job.jobDescription}
+                label="Copy Full JD"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              />
+              <LinkedInPostButton
+                job={job}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 hover:bg-[#0a66c2] text-[#0a66c2] hover:text-white border border-blue-200 hover:border-[#0a66c2] rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              />
+            </div>
           </div>
 
           <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line bg-slate-50/50 p-6 sm:p-8 rounded-2xl border border-slate-100 font-sans">
