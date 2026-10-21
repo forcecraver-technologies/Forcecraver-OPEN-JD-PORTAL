@@ -25,7 +25,9 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+backup_data/
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.neon
