@@ -23,6 +23,7 @@ import {
 import { format } from 'date-fns';
 import LinkedInPostButton from '@/components/LinkedInPostButton';
 import CopyJDButton from '@/components/CopyJDButton';
+import EnhanceJDButton from '@/components/EnhanceJDButton';
 
 interface JobDetailsProps {
   params: Promise<{ id: string }>;
@@ -75,6 +76,7 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
           />
           <LinkedInPostButton job={job} />
+          <EnhanceJDButton job={job} />
           <span className="text-xs text-slate-400 font-mono">Job ID: {job.id.slice(0, 8)}</span>
         </div>
       </div>
@@ -354,6 +356,10 @@ export default async function JobDetailsPage({ params }: JobDetailsProps) {
               <LinkedInPostButton
                 job={job}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 hover:bg-[#0a66c2] text-[#0a66c2] hover:text-white border border-blue-200 hover:border-[#0a66c2] rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              />
+              <EnhanceJDButton
+                job={job}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow cursor-pointer"
               />
             </div>
           </div>
