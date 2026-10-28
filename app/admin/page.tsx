@@ -75,8 +75,8 @@ export default function AdminDashboardPage() {
       try {
         setLoadingStats(true);
         const [statsRes, companiesRes] = await Promise.all([
-          fetch('/api/admin/stats'),
-          fetch('/api/admin/companies'),
+          fetch('/api/admin/stats', { cache: 'no-store' }),
+          fetch('/api/admin/companies', { cache: 'no-store' }),
         ]);
 
         if (statsRes.ok) {
@@ -86,8 +86,9 @@ export default function AdminDashboardPage() {
 
         if (companiesRes.ok) {
           const companiesData = await companiesRes.json();
-          const names = (companiesData.companies || []).map((c: any) => c.companyName);
-          setAvailableCompanies(names);
+          const names: string[] = (companiesData.companies || []).map((c: any) => c.companyName);
+          const uniqueSortedNames = Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
+          setAvailableCompanies(uniqueSortedNames);
         }
       } catch (err) {
         console.error('Failed to load admin stats or companies:', err);
@@ -118,7 +119,7 @@ export default function AdminDashboardPage() {
       params.set('page', currentPage.toString());
       params.set('limit', '10');
 
-      const res = await fetch(`/api/admin/jobs?${params.toString()}`);
+      const res = await fetch(`/api/admin/jobs?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setJobs(data.jobs || []);

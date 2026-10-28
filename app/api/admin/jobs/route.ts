@@ -3,6 +3,8 @@ import { JobsService } from '@/services/jobs.service';
 import { validateJobInput } from '@/lib/validations';
 import { JobFilterParams } from '@/types/job';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -25,7 +27,11 @@ export async function GET(request: NextRequest) {
     };
 
     const result = await JobsService.getJobs(filters);
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      },
+    });
   } catch (error) {
     console.error('Admin error fetching jobs:', error);
     return NextResponse.json(

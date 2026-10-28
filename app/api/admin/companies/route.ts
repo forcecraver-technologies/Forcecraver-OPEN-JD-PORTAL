@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { JobsService } from '@/services/jobs.service';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const companies = await JobsService.getAdminCompaniesWithStats();
-    return NextResponse.json({
-      companies,
-      totalCompanies: companies.length,
-    });
+    return NextResponse.json(
+      {
+        companies,
+        totalCompanies: companies.length,
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching admin companies:', error);
     return NextResponse.json(

@@ -92,11 +92,12 @@ function ManageJobsContent() {
   useEffect(() => {
     async function loadCompanies() {
       try {
-        const res = await fetch('/api/admin/companies');
+        const res = await fetch('/api/admin/companies', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          const names = (data.companies || []).map((c: any) => c.companyName);
-          setAvailableCompanies(names);
+          const names: string[] = (data.companies || []).map((c: any) => c.companyName);
+          const uniqueSortedNames = Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
+          setAvailableCompanies(uniqueSortedNames);
         }
       } catch (err) {
         console.error('Failed to load companies for filter:', err);
@@ -124,7 +125,7 @@ function ManageJobsContent() {
       params.set('page', currentPage.toString());
       params.set('limit', '12');
 
-      const res = await fetch(`/api/admin/jobs?${params.toString()}`);
+      const res = await fetch(`/api/admin/jobs?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setJobs(data.jobs || []);
